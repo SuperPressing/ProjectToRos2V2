@@ -1,0 +1,28 @@
+[1.166s] Invoking command in '/home/neo/Documents/ros2_ws/src/my_robot': PYTHONPATH=/home/neo/Documents/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot build --build-base /home/neo/Documents/ros2_ws/build/my_robot/build install --record /home/neo/Documents/ros2_ws/build/my_robot/install.log --single-version-externally-managed install_data
+[1.411s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[1.411s]   warnings.warn(msg)
+[1.579s] running egg_info
+[1.595s] creating ../../build/my_robot/my_robot.egg-info
+[1.595s] writing ../../build/my_robot/my_robot.egg-info/PKG-INFO
+[1.596s] writing dependency_links to ../../build/my_robot/my_robot.egg-info/dependency_links.txt
+[1.596s] writing requirements to ../../build/my_robot/my_robot.egg-info/requires.txt
+[1.596s] writing top-level names to ../../build/my_robot/my_robot.egg-info/top_level.txt
+[1.597s] writing manifest file '../../build/my_robot/my_robot.egg-info/SOURCES.txt'
+[1.634s] reading manifest file '../../build/my_robot/my_robot.egg-info/SOURCES.txt'
+[1.635s] writing manifest file '../../build/my_robot/my_robot.egg-info/SOURCES.txt'
+[1.635s] running build
+[1.635s] running build_py
+[1.635s] creating /home/neo/Documents/ros2_ws/build/my_robot/build/lib/my_robot
+[1.635s] copying my_robot/__init__.py -> /home/neo/Documents/ros2_ws/build/my_robot/build/lib/my_robot
+[1.636s] running install
+[1.641s] running install_lib
+[1.670s] creating /home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages/my_robot
+[1.670s] copying /home/neo/Documents/ros2_ws/build/my_robot/build/lib/my_robot/__init__.py -> /home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages/my_robot
+[1.671s] byte-compiling /home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages/my_robot/__init__.py to __init__.cpython-310.pyc
+[1.671s] running install_data
+[1.672s] creating /home/neo/Documents/ros2_ws/install/my_robot/share/ament_index/resource_index/packages
+[1.672s] copying resource/my_robot -> /home/neo/Documents/ros2_ws/install/my_robot/share/ament_index/resource_index/packages
+[1.673s] copying package.xml -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot
+[1.673s] creating /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/launch
+[1.673s] error: can't copy 'launch/robot_spawn.launch.py': doesn't exist or not a regular file
+[1.716s] Invoked command in '/home/neo/Documents/ros2_ws/src/my_robot' returned '1': PYTHONPATH=/home/neo/Documents/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot build --build-base /home/neo/Documents/ros2_ws/build/my_robot/build install --record /home/neo/Documents/ros2_ws/build/my_robot/install.log --single-version-externally-managed install_data

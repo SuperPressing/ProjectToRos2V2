@@ -1,0 +1,8 @@
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:action/RotateAbsolute.idl
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:msg/Color.idl
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:msg/Pose.idl
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:srv/Kill.idl
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:srv/SetPen.idl
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:srv/Spawn.idl
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:srv/TeleportAbsolute.idl
+/home/neo/Documents/ros2_ws/build/turtlesim/rosidl_adapter/turtlesim:srv/TeleportRelative.idl

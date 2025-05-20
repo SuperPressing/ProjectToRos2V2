@@ -1,0 +1,24 @@
+[0.779s] Invoking command in '/home/neo/Documents/ros2_ws/src/my_robot': PYTHONPATH=/home/neo/Documents/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot build --build-base /home/neo/Documents/ros2_ws/build/my_robot/build install --record /home/neo/Documents/ros2_ws/build/my_robot/install.log --single-version-externally-managed install_data
+[0.982s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[0.982s]   warnings.warn(msg)
+[1.051s] running egg_info
+[1.063s] writing ../../build/my_robot/my_robot.egg-info/PKG-INFO
+[1.063s] writing dependency_links to ../../build/my_robot/my_robot.egg-info/dependency_links.txt
+[1.063s] writing requirements to ../../build/my_robot/my_robot.egg-info/requires.txt
+[1.063s] writing top-level names to ../../build/my_robot/my_robot.egg-info/top_level.txt
+[1.089s] reading manifest file '../../build/my_robot/my_robot.egg-info/SOURCES.txt'
+[1.091s] writing manifest file '../../build/my_robot/my_robot.egg-info/SOURCES.txt'
+[1.091s] running build
+[1.091s] running build_py
+[1.091s] copying my_robot/__init__.py -> /home/neo/Documents/ros2_ws/build/my_robot/build/lib/my_robot
+[1.091s] running install
+[1.094s] running install_lib
+[1.108s] running install_data
+[1.108s] copying resource/my_robot -> /home/neo/Documents/ros2_ws/install/my_robot/share/ament_index/resource_index/packages
+[1.108s] copying package.xml -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot
+[1.108s] copying launch/launch_robot.launch.py -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/launch
+[1.108s] copying launch/launch_sim.launch.py -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/launch
+[1.108s] copying launch/rsp.launch.py -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/launch
+[1.108s] copying description/robot.urdf.xacro -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/description
+[1.108s] error: can't copy 'robot_core.xacro': doesn't exist or not a regular file
+[1.126s] Invoked command in '/home/neo/Documents/ros2_ws/src/my_robot' returned '1': PYTHONPATH=/home/neo/Documents/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot build --build-base /home/neo/Documents/ros2_ws/build/my_robot/build install --record /home/neo/Documents/ros2_ws/build/my_robot/install.log --single-version-externally-managed install_data

@@ -1,0 +1,50 @@
+[0.000000] (-) TimerEvent: {}
+[0.000238] (-) JobUnselected: {'identifier': 'turtlesim'}
+[0.000274] (map_test) JobQueued: {'identifier': 'map_test', 'dependencies': OrderedDict()}
+[0.000297] (map_test) JobStarted: {'identifier': 'map_test'}
+[0.099647] (-) TimerEvent: {}
+[0.200139] (-) TimerEvent: {}
+[0.300739] (-) TimerEvent: {}
+[0.401181] (-) TimerEvent: {}
+[0.501608] (-) TimerEvent: {}
+[0.601979] (-) TimerEvent: {}
+[0.702304] (-) TimerEvent: {}
+[0.802803] (-) TimerEvent: {}
+[0.838401] (map_test) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../build/map_test', 'build', '--build-base', '/home/neo/Documents/ros2_ws/src/build/map_test/build', 'install', '--record', '/home/neo/Documents/ros2_ws/src/build/map_test/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/neo/Documents/ros2_ws/src/map_test', 'env': {'GJS_DEBUG_TOPICS': 'JS ERROR;JS LOG', 'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'neo', 'LC_TIME': 'ru_RU.UTF-8', 'XDG_SESSION_TYPE': 'wayland', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/usr/lib/x86_64-linux-gnu/gazebo-11/plugins:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/home/neo', 'CONDA_SHLVL': '0', 'OLDPWD': '/home/neo/Documents/ros2_ws', 'DESKTOP_SESSION': 'ubuntu', 'GIO_LAUNCHED_DESKTOP_FILE': '/usr/share/applications/terminator.desktop', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'LC_MONETARY': 'ru_RU.UTF-8', 'MANAGERPID': '928', 'SYSTEMD_EXEC_PID': '1139', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLORTERM': 'truecolor', '_CE_M': '', 'TERMINATOR_DBUS_NAME': 'net.tenshu.Terminator25ef4b219e3b005583550f2b0f9f990c3', 'GIO_LAUNCHED_DESKTOP_FILE_PID': '3095', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'humble', 'LOGNAME': 'neo', 'JOURNAL_STREAM': '8:11843', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'neo', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', '_CE_CONDA': '', 'ROS_LOCALHOST_ONLY': '1', 'PATH': '/opt/ros/humble/bin:/home/neo/.pixi/bin:/home/neo/anaconda3/condabin:/home/neo/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin', 'SESSION_MANAGER': 'local/neo-nesterov:@/tmp/.ICE-unix/1089,unix/neo-nesterov:/tmp/.ICE-unix/1089', 'INVOCATION_ID': 'e7a87ba7f51c44dca9e8a2d4f3369e04', 'XDG_MENU_PREFIX': 'gnome-', 'LC_ADDRESS': 'ru_RU.UTF-8', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'TERMINATOR_DBUS_PATH': '/net/tenshu/Terminator2', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'IBUS_DISABLE_SNOOPER': '1', 'LC_TELEPHONE': 'ru_RU.UTF-8', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.STAJ62', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/opt/ros/humble', 'CONDA_PYTHON_EXE': '/home/neo/anaconda3/bin/python', 'SHELL': '/bin/bash', 'LC_NAME': 'ru_RU.UTF-8', 'TERMINATOR_UUID': 'urn:uuid:ad18749e-0552-4732-acc4-ee0631008f68', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'LC_MEASUREMENT': 'ru_RU.UTF-8', 'GJS_DEBUG_OUTPUT': 'stderr', 'LC_IDENTIFICATION': 'ru_RU.UTF-8', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/neo/Documents/ros2_ws/src/build/map_test', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'CONDA_EXE': '/home/neo/anaconda3/bin/conda', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/neo/Documents/ros2_ws/src/build/map_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/src/install/map_test/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'LC_NUMERIC': 'ru_RU.UTF-8', 'LC_PAPER': 'ru_RU.UTF-8', 'COLCON': '1', 'VTE_VERSION': '6800'}, 'shell': False}
+[0.903002] (-) TimerEvent: {}
+[1.003446] (-) TimerEvent: {}
+[1.056692] (map_test) StderrLine: {'line': b"/home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'\n"}
+[1.056911] (map_test) StderrLine: {'line': b'  warnings.warn(msg)\n'}
+[1.103609] (-) TimerEvent: {}
+[1.125838] (map_test) StdoutLine: {'line': b'running egg_info\n'}
+[1.137182] (map_test) StdoutLine: {'line': b'creating ../build/map_test/map_test.egg-info\n'}
+[1.137322] (map_test) StdoutLine: {'line': b'writing ../build/map_test/map_test.egg-info/PKG-INFO\n'}
+[1.137767] (map_test) StdoutLine: {'line': b'writing dependency_links to ../build/map_test/map_test.egg-info/dependency_links.txt\n'}
+[1.137865] (map_test) StdoutLine: {'line': b'writing requirements to ../build/map_test/map_test.egg-info/requires.txt\n'}
+[1.137944] (map_test) StdoutLine: {'line': b'writing top-level names to ../build/map_test/map_test.egg-info/top_level.txt\n'}
+[1.138007] (map_test) StdoutLine: {'line': b"writing manifest file '../build/map_test/map_test.egg-info/SOURCES.txt'\n"}
+[1.162818] (map_test) StdoutLine: {'line': b"reading manifest file '../build/map_test/map_test.egg-info/SOURCES.txt'\n"}
+[1.163492] (map_test) StdoutLine: {'line': b"adding license file 'LICENSE'\n"}
+[1.163653] (map_test) StdoutLine: {'line': b"writing manifest file '../build/map_test/map_test.egg-info/SOURCES.txt'\n"}
+[1.163748] (map_test) StdoutLine: {'line': b'running build\n'}
+[1.163789] (map_test) StdoutLine: {'line': b'running build_py\n'}
+[1.163849] (map_test) StdoutLine: {'line': b'creating /home/neo/Documents/ros2_ws/src/build/map_test/build/lib/map_test\n'}
+[1.163979] (map_test) StdoutLine: {'line': b'copying map_test/__init__.py -> /home/neo/Documents/ros2_ws/src/build/map_test/build/lib/map_test\n'}
+[1.164257] (map_test) StdoutLine: {'line': b'running install\n'}
+[1.167309] (map_test) StdoutLine: {'line': b'running install_lib\n'}
+[1.180913] (map_test) StdoutLine: {'line': b'creating /home/neo/Documents/ros2_ws/src/install/map_test/lib/python3.10/site-packages/map_test\n'}
+[1.181037] (map_test) StdoutLine: {'line': b'copying /home/neo/Documents/ros2_ws/src/build/map_test/build/lib/map_test/__init__.py -> /home/neo/Documents/ros2_ws/src/install/map_test/lib/python3.10/site-packages/map_test\n'}
+[1.181302] (map_test) StdoutLine: {'line': b'byte-compiling /home/neo/Documents/ros2_ws/src/install/map_test/lib/python3.10/site-packages/map_test/__init__.py to __init__.cpython-310.pyc\n'}
+[1.181423] (map_test) StdoutLine: {'line': b'running install_data\n'}
+[1.181566] (map_test) StdoutLine: {'line': b'creating /home/neo/Documents/ros2_ws/src/install/map_test/share/ament_index/resource_index/packages\n'}
+[1.181670] (map_test) StdoutLine: {'line': b'copying resource/map_test -> /home/neo/Documents/ros2_ws/src/install/map_test/share/ament_index/resource_index/packages\n'}
+[1.181811] (map_test) StdoutLine: {'line': b'copying package.xml -> /home/neo/Documents/ros2_ws/src/install/map_test/share/map_test\n'}
+[1.181840] (map_test) StdoutLine: {'line': b'running install_egg_info\n'}
+[1.194629] (map_test) StdoutLine: {'line': b'Copying ../build/map_test/map_test.egg-info to /home/neo/Documents/ros2_ws/src/install/map_test/lib/python3.10/site-packages/map_test-0.0.0-py3.10.egg-info\n'}
+[1.194960] (map_test) StdoutLine: {'line': b'running install_scripts\n'}
+[1.203769] (-) TimerEvent: {}
+[1.289803] (map_test) StdoutLine: {'line': b"writing list of installed files to '/home/neo/Documents/ros2_ws/src/build/map_test/install.log'\n"}
+[1.303993] (-) TimerEvent: {}
+[1.312241] (map_test) CommandEnded: {'returncode': 0}
+[1.318069] (map_test) JobEnded: {'identifier': 'map_test', 'rc': 0}
+[1.318600] (-) EventReactorShutdown: {}

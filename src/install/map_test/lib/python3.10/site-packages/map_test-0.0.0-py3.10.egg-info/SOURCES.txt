@@ -1,0 +1,15 @@
+LICENSE
+package.xml
+setup.cfg
+setup.py
+../build/map_test/map_test.egg-info/PKG-INFO
+../build/map_test/map_test.egg-info/SOURCES.txt
+../build/map_test/map_test.egg-info/dependency_links.txt
+../build/map_test/map_test.egg-info/requires.txt
+../build/map_test/map_test.egg-info/top_level.txt
+../build/map_test/map_test.egg-info/zip-safe
+map_test/__init__.py
+resource/map_test
+test/test_copyright.py
+test/test_flake8.py
+test/test_pep257.py
