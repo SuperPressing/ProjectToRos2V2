@@ -1,0 +1,30 @@
+/home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+  warnings.warn(msg)
+running egg_info
+writing ../../build/editing_map/editing_map.egg-info/PKG-INFO
+writing dependency_links to ../../build/editing_map/editing_map.egg-info/dependency_links.txt
+writing entry points to ../../build/editing_map/editing_map.egg-info/entry_points.txt
+writing requirements to ../../build/editing_map/editing_map.egg-info/requires.txt
+writing top-level names to ../../build/editing_map/editing_map.egg-info/top_level.txt
+reading manifest file '../../build/editing_map/editing_map.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../../build/editing_map/editing_map.egg-info/SOURCES.txt'
+running build
+running build_py
+copying editing_map/listener.py -> /home/neo/Documents/ros2_ws/build/editing_map/build/lib/editing_map
+copying editing_map/__init__.py -> /home/neo/Documents/ros2_ws/build/editing_map/build/lib/editing_map
+copying editing_map/talker.py -> /home/neo/Documents/ros2_ws/build/editing_map/build/lib/editing_map
+running install
+running install_lib
+copying /home/neo/Documents/ros2_ws/build/editing_map/build/lib/editing_map/talker.py -> /home/neo/Documents/ros2_ws/install/editing_map/lib/python3.10/site-packages/editing_map
+byte-compiling /home/neo/Documents/ros2_ws/install/editing_map/lib/python3.10/site-packages/editing_map/talker.py to talker.cpython-310.pyc
+running install_data
+copying resource/editing_map -> /home/neo/Documents/ros2_ws/install/editing_map/share/ament_index/resource_index/packages
+copying package.xml -> /home/neo/Documents/ros2_ws/install/editing_map/share/editing_map
+running install_egg_info
+removing '/home/neo/Documents/ros2_ws/install/editing_map/lib/python3.10/site-packages/editing_map-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../build/editing_map/editing_map.egg-info to /home/neo/Documents/ros2_ws/install/editing_map/lib/python3.10/site-packages/editing_map-0.0.0-py3.10.egg-info
+running install_scripts
+Installing listener script to /home/neo/Documents/ros2_ws/install/editing_map/lib/editing_map
+Installing talker script to /home/neo/Documents/ros2_ws/install/editing_map/lib/editing_map
+writing list of installed files to '/home/neo/Documents/ros2_ws/build/editing_map/install.log'
