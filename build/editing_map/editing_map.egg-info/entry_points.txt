@@ -1,0 +1,2 @@
+[console_scripts]
+talker = editing_map.talker:main
