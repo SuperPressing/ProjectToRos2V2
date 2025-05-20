@@ -115,10 +115,17 @@ def generate_launch_description():
             on_exit=[slam_toolbox_node],
         )
     )
-    map = Node(
+    map_talker = Node(
         package='editing_map',
         executable='talker',
-        name='minimal_publisher',
+        name='map_talk',
+        output='screen'
+    )
+
+    map_read = Node(
+        package='editing_map',
+        executable='listener',
+        name='map_read',
         output='screen'
     )
     # Launch them all!
@@ -130,7 +137,8 @@ def generate_launch_description():
         gazebo,
         spawn_entity,
         delayed_slam_toolbox,
-        map,
+        map_talker,
+        map_read,
         #dlayed_diff_drive_spawner,
         #delayed_joint_broad_spawner,
     ])

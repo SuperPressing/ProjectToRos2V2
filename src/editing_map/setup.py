@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
         	'talker = editing_map.talker:main',
+        	'listener = editing_map.listener:main',
         ],
     },
 )

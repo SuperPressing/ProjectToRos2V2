@@ -10,6 +10,7 @@ setup.py
 ../../build/editing_map/editing_map.egg-info/top_level.txt
 ../../build/editing_map/editing_map.egg-info/zip-safe
 editing_map/__init__.py
+editing_map/listener.py
 editing_map/talker.py
 resource/editing_map
 test/test_copyright.py
