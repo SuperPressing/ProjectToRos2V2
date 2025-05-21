@@ -125,7 +125,7 @@ def generate_launch_description():
     map_read = Node(
         package='editing_map',
         executable='listener',
-        name='map_read',
+        name='map_editing',
         output='screen'
     )
     # Launch them all!

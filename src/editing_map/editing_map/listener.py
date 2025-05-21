@@ -102,7 +102,7 @@ class MapEditor(Node):
             centers.append((center_x, center_y))
 
         # Минимальное расстояние между группами (в метрах)
-        min_distance_meters = 1.5
+        min_distance_meters = 1.3
         min_distance_cells = int(min_distance_meters / resolution)
 
         modified_data = list(data)
