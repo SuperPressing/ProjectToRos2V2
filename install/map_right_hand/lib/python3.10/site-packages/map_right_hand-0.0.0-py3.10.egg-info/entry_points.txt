@@ -1,0 +1,2 @@
+[console_scripts]
+right_hand = map_right_hand.right_hand:main
