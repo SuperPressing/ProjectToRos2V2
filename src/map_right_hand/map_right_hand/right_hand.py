@@ -19,7 +19,7 @@ class WallFollower(Node):
         start = True
         if(start):
             twist = Twist()
-            twist.linear.x = 0.1
+            twist.angular.z = 1.0
             start = False
             self.cmd_pub.publish(twist)
         # Переменные для работы
@@ -57,30 +57,36 @@ class WallFollower(Node):
         twist = Twist()
 
         # Расстояние до стены, которое считаем критическим (в ячейках)
-        wall_distance_for_turn = 0 # например, если стена ближе чем 2 ячейки → начинаем поворачивать
+        wall_distance_for_turn = 20 # например, если стена ближе чем 2 ячейки → начинаем поворачивать
 
         right = self.is_wall_on_right(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn)
         front = self.is_obstacle_in_front(self.robot_x, self.robot_y, self.robot_yaw, 20)
+        
 
-        # Правило правой руки
-        # if not self.search:
-        #     if not right:
-        #         twist.linear.x = -0.5
-        #         self.get_logger().info("Поварачиваю на право!")
-        #     elif front :
-        #         twist.linear.x = 0.5
-        #         self.get_logger().info("Поварачиваю на лево!")
-        #     else:
-        #         twist.angular.z = 1.0
-        #         self.get_logger().info("Еду вперёд!")
-        if not self.search:
-            self.get_logger().info("Стена!!!")
         if self.search:
-            # twist.angular.z = 2.0
-            twist.linear.x = 0.1
+            twist.angular.z = 5.0
             self.get_logger().info("Еду вперёд  до стены!")
             if front:
                 self.search = False
+                self.get_logger().info("Конец стартового движения!")
+                twist.angular.z = 0.0
+
+
+        # Правило правой руки
+        if not self.search:
+            if not right:
+                twist.linear.x = 0.5
+                self.get_logger().info("Поварачиваю на право!")
+            elif front :
+                twist.linear.x = -0.5
+                self.get_logger().info("Поварачиваю на лево!")
+            else:
+                twist.angular.z = 2.0
+                self.get_logger().info("Еду вперёд!")
+        if not self.search:
+            self.get_logger().info("Стена!!!")
+
+        
         right_x = self.robot_x + int(math.cos(self.robot_yaw + math.pi / 2))
         right_y = self.robot_y + int(math.sin(self.robot_yaw + math.pi / 2))
         front_x = self.robot_x + int(math.cos(self.robot_yaw))
@@ -89,8 +95,8 @@ class WallFollower(Node):
 
         right = self.is_occupied(right_x, right_y)
         front = self.is_occupied(front_x, front_y)
-        # self.get_logger().info(f'Справа: {right_x}, {right_y} → {"стена" if right else "свободно"}')
-        # self.get_logger().info(f'Спереди: {front_x}, {front_y} → {"стена" if front else "свободно"}')
+        self.get_logger().info(f'Справа: {right_x}, {right_y} → {"стена" if right else "свободно"}')
+        self.get_logger().info(f'Спереди: {front_x}, {front_y} → {"стена" if front else "свободно"}')
         self.cmd_pub.publish(twist)
 
     def pose_callback(self, msg):
@@ -112,13 +118,15 @@ class WallFollower(Node):
         self.follow_wall()
 
 
-    def is_wall_on_right(self, x, y, yaw, distance_cells=2):
+    def is_wall_on_right(self, x, y, yaw, max_cells=50):
         """Проверяет, есть ли стена справа на заданном расстоянии"""
-        for i in range(1, distance_cells + 1):
-            nx = x + int(math.cos(yaw) * i)
-            ny = y + int(math.sin(yaw) * i)
+        for i in range(1, max_cells + 1):
+            nx = x + int(math.cos(yaw+math.pi / 2+math.pi*2) * i)
+            ny = y + int(math.sin(yaw+math.pi / 2 +math.pi*2) * i)
+            
             if self.is_occupied(nx, ny):
-                return True
+                self.get_logger().info(f'Координаты стены справа: ({nx}, {ny})')
+                return True  # стена найдена
         return False
     
     def is_obstacle_in_front(self, x, y, yaw, max_cells=50):
