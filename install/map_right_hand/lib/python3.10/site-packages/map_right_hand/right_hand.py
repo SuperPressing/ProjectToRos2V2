@@ -60,7 +60,7 @@ class WallFollower(Node):
         wall_distance_for_turn = 20 # например, если стена ближе чем 2 ячейки → начинаем поворачивать
 
         right = self.is_wall_on_right(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn)
-        front = self.is_obstacle_in_front(self.robot_x, self.robot_y, self.robot_yaw, 20)
+        front = self.is_obstacle_in_front(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn)
         
 
         if self.search:
@@ -74,29 +74,27 @@ class WallFollower(Node):
 
         # Правило правой руки
         if not self.search:
-            if not right:
-                twist.linear.x = 0.5
-                self.get_logger().info("Поварачиваю на право!")
-            elif front :
+            if front and right:
                 twist.linear.x = -0.5
-                self.get_logger().info("Поварачиваю на лево!")
-            else:
+                # self.get_logger().info("Поварачиваю на лево!")
+            elif right:
                 twist.angular.z = 2.0
-                self.get_logger().info("Еду вперёд!")
-        if not self.search:
-            self.get_logger().info("Стена!!!")
+                # self.get_logger().info("Еду вперёд!")
+            else:
+                twist.linear.x = 0.5
+                # self.get_logger().info("Поварачиваю на право!")
 
         
         right_x = self.robot_x + int(math.cos(self.robot_yaw + math.pi / 2))
         right_y = self.robot_y + int(math.sin(self.robot_yaw + math.pi / 2))
         front_x = self.robot_x + int(math.cos(self.robot_yaw))
         front_y = self.robot_y + int(math.sin(self.robot_yaw))
-        self.get_logger().info(f'robot_x: {self.robot_x}, robot_y: {self.robot_y}')
+        # self.get_logger().info(f'robot_x: {self.robot_x}, robot_y: {self.robot_y}')
 
         right = self.is_occupied(right_x, right_y)
         front = self.is_occupied(front_x, front_y)
-        self.get_logger().info(f'Справа: {right_x}, {right_y} → {"стена" if right else "свободно"}')
-        self.get_logger().info(f'Спереди: {front_x}, {front_y} → {"стена" if front else "свободно"}')
+        # self.get_logger().info(f'Справа: {right_x}, {right_y} → {"стена" if right else "свободно"}')
+        # self.get_logger().info(f'Спереди: {front_x}, {front_y} → {"стена" if front else "свободно"}')
         self.cmd_pub.publish(twist)
 
     def pose_callback(self, msg):
@@ -118,14 +116,25 @@ class WallFollower(Node):
         self.follow_wall()
 
 
-    def is_wall_on_right(self, x, y, yaw, max_cells=50):
+    def is_wall_on_right(self, x, y, yaw, max_cells=10):
         """Проверяет, есть ли стена справа на заданном расстоянии"""
         for i in range(1, max_cells + 1):
-            nx = x + int(math.cos(yaw+math.pi / 2+math.pi*2) * i)
-            ny = y + int(math.sin(yaw+math.pi / 2 +math.pi*2) * i)
-            
-            if self.is_occupied(nx, ny):
-                self.get_logger().info(f'Координаты стены справа: ({nx}, {ny})')
+            nx_0 = x + int(math.cos(yaw+math.pi / 2) * i)
+            nx_light = x + int(math.cos(yaw+math.pi / 2) * i-1)
+            ny_0 = y + int(math.sin(yaw+math.pi / 2) * i)
+            metka = False
+            i_metka = i
+            rang = 30
+            for idx in range(rang):
+                ny_1 = y + int(math.sin(yaw+math.pi / 2) * (i_metka + idx-rang/2))
+                if (self.is_occupied(nx_0, ny_1) and not self.is_occupied(nx_light, ny_1)):
+                    metka = True
+                else:
+                    metka = False
+                    break
+
+            if (self.is_occupied(nx_0, ny_0) and metka):
+                self.get_logger().info(f'Координаты стены справа: ({nx_0}, {ny_0})')
                 return True  # стена найдена
         return False
     
@@ -151,11 +160,11 @@ class WallFollower(Node):
         width = self.map_info.width
         height = self.map_info.height
         idx = x + y * width
-
         if 0 <= idx < len(self.map_data):
             cell_value = self.map_data[idx]
             return cell_value == 100  # 100 = занято
-        return True  # если за пределами карты — считаем как стену
+        
+        return False  # если за пределами карты — считаем как стену
     @staticmethod
     def euler_from_quaternion(quat):
         import math
