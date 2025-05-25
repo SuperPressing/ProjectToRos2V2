@@ -124,7 +124,7 @@ class WallFollower(Node):
             ny_0 = y + int(math.sin(yaw+math.pi / 2) * i)
             metka = False
             i_metka = i
-            rang = 30
+            rang = 20
             for idx in range(rang):
                 ny_1 = y + int(math.sin(yaw+math.pi / 2) * (i_metka + idx-rang/2))
                 if (self.is_occupied(nx_0, ny_1) and not self.is_occupied(nx_light, ny_1)):
