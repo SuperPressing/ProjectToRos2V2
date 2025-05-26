@@ -3,13 +3,16 @@ from rclpy.node import Node
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import Twist, PoseWithCovarianceStamped
 import math
-
-
+import time
 class WallFollower(Node):
 
     def __init__(self):
         super().__init__('wall_follower')
-
+        self.Kp = 0.001  # Пропорциональный коэффициент
+        self.Kd = 0.01  # Дифференциальный коэффициент
+        self.last_error = 0.0  # Предыдущая ошWибка
+        self.max_angular_speed = 0.1  # Максимальная угловая скорость
+        self.last_time = self.get_clock().now().nanoseconds * 1e-9  # в секундах
         # Подписки
         self.create_subscription(OccupancyGrid, '/map_modified', self.map_callback, 10)
         self.create_subscription(PoseWithCovarianceStamped, '/pose', self.pose_callback, 10)
@@ -37,8 +40,8 @@ class WallFollower(Node):
 
     def pose_callback(self, msg):
         """Получаем позицию робота"""
-        if not self.map_info:
-            return
+        # if not self.map_info:
+        #     return
 
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
@@ -51,8 +54,9 @@ class WallFollower(Node):
         self.follow_wall(self.search)
 
     def follow_wall(self):
-        if not self.map_info or not self.map_data:
-            return
+
+        # if not self.map_info or not self.map_data:
+        #     return
 
         twist = Twist()
 
@@ -61,9 +65,9 @@ class WallFollower(Node):
 
         right, dist = self.is_wall_on_right(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn+30)
         front = self.is_obstacle_in_front(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn)
-
-        self.get_logger().info(f'Препядствие спреди  {front} и справа {right}!')
-        ref_dist = 10
+        f_r = self.f_r(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn)
+        # self.get_logger().info(f'Препядствие спреди  {front} и справа {right}!')
+        ref_dist = 20
         dist  = abs(dist)
         if self.search:
             twist.angular.z = 5.0
@@ -76,21 +80,30 @@ class WallFollower(Node):
 
         # Правило правой руки
         if not self.search:
-
+            angular_speed = 0
             if (front and right) or front:
+                # Если стена спереди или спереди и справа — отступаем
                 twist.linear.x = -0.5
+                twist.angular.z = 0.0
             elif right:
-                if(ref_dist > dist):
-                    # self.get_logger().info(f'Необходимо исправить траеторию {dist}')
-                    twist.linear.x = -0.1
-                elif(ref_dist < dist):
-                    twist.linear.x = 0.1
-                    # self.get_logger().info(f'ХУЙ {dist}')
-                twist.angular.z = 2.0
-                # self.get_logger().info("Еду вперёд!")
+                # Стена справа — включаем PD-регулятор
+                error = dist - ref_dist
+                current_time = self.get_clock().now().nanoseconds * 1e-9
+                dt = current_time - self.last_time
+                d_error = (error - self.last_error) / dt if dt > 0 else 0
+                self.last_error = error
+                self.last_time = current_time
+                # if (abs(error) >0.5):
+                    # Вычисляем угловую скорость через PD
+                angular_speed = self.Kp * error + self.Kd * d_error
+                angular_speed = max(-self.max_angular_speed, min(angular_speed, self.max_angular_speed))
+                twist.linear.x = angular_speed
+                twist.angular.z= 2.0  # Двигаемся вперёд с постоянной скоростью
+                self.get_logger().info(f'error: {error} dist {dist} angular_speed {angular_speed}')
+            elif(not right and not front and f_r):
+                twist.angular.z = 1.5
             else:
                 twist.linear.x = 0.5
-                twist.angular.z = 0.5
                 # self.get_logger().info("Поварачиваю на право!")
 
         
@@ -98,8 +111,7 @@ class WallFollower(Node):
         right_y = self.robot_y + int(math.sin(self.robot_yaw + math.pi / 2))
         front_x = self.robot_x + int(math.cos(self.robot_yaw))
         front_y = self.robot_y + int(math.sin(self.robot_yaw))
-        self.get_logger().info(f'robot_x: {self.robot_x}, robot_y: {self.robot_y}')
-
+        # self.get_logger().info(f'robot_x: {self.robot_x}, robot_y: {self.robot_y}')
         right = self.is_occupied(right_x, right_y)
         front = self.is_occupied(front_x, front_y)
         # self.get_logger().info(f'Справа: {right_x}, {right_y} → {"стена" if right else "свободно"}')
@@ -120,7 +132,7 @@ class WallFollower(Node):
         self.robot_yaw = yaw
 
         # Логируем позицию и угол
-        self.get_logger().info(f'Получена позиция: ({self.robot_x}, {self.robot_y}), yaw: {math.degrees(yaw):.2f}°')
+        # self.get_logger().info(f'Получена позиция: ({self.robot_x}, {self.robot_y}), yaw: {math.degrees(yaw):.2f}°')
         
         self.follow_wall()
 
@@ -132,8 +144,8 @@ class WallFollower(Node):
             nx_0 = x + int(math.cos(yaw+ math.pi/2) * (i-1))
             ny_0 = y + int(math.sin(yaw+ math.pi/2) * (i-1))
             if (self.is_occupied(nx_0, ny_0)):
-                dist = self.check_wall(x, y, 40)
-                return True, abs(dist)  # стена найдена
+                dist = self.check_wall(x, y, 100)
+                return True, abs(dist)  # стена найденаc
                 
         return False, abs(dist)
     
@@ -172,7 +184,7 @@ class WallFollower(Node):
         return False  # если за пределами карты — считаем как стену
     
     def check_wall(self, x, y, d=10):
-        dist = 50
+        dist = 100
         dist_x = 0
         for i in range(d):
             x_0 = int(x + i-d/2)
@@ -184,6 +196,18 @@ class WallFollower(Node):
                 if (self.is_occupied(x_0, y_0) and dist_x<dist):
                     dist = dist_x
         return dist
+    
+    def f_r(self, x, y, yaw, max_cells=50):
+        """Проверяет, есть ли стена справа на заданном расстоянии"""
+        dist = 0
+        for i in range(1, max_cells + 1):
+            nx_0 = x + int(math.cos(yaw+ math.pi/2) * (i-1))
+            ny_0 = y + int(math.sin(yaw+ math.pi/2) * (i-1+5))
+            if (self.is_occupied(nx_0, ny_0)):
+                dist = self.check_wall(x, y, 100)
+                return True, abs  # стена найденаc
+                
+        return False
     
     @staticmethod
     def euler_from_quaternion(quat):
