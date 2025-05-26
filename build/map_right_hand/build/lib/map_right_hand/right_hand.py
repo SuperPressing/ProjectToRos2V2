@@ -57,31 +57,40 @@ class WallFollower(Node):
         twist = Twist()
 
         # Расстояние до стены, которое считаем критическим (в ячейках)
-        wall_distance_for_turn = 20 # например, если стена ближе чем 2 ячейки → начинаем поворачивать
+        wall_distance_for_turn = 15 # например, если стена ближе чем 2 ячейки → начинаем поворачивать
 
-        right = self.is_wall_on_right(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn)
+        right, dist = self.is_wall_on_right(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn+30)
         front = self.is_obstacle_in_front(self.robot_x, self.robot_y, self.robot_yaw, wall_distance_for_turn)
-        
 
+        self.get_logger().info(f'Препядствие спреди  {front} и справа {right}!')
+        ref_dist = 10
+        dist  = abs(dist)
         if self.search:
             twist.angular.z = 5.0
-            self.get_logger().info("Еду вперёд  до стены!")
+            # self.get_logger().info("Еду вперёд  до стены!")
             if front:
                 self.search = False
-                self.get_logger().info("Конец стартового движения!")
+                # self.get_logger().info("Конец стартового движения!")
                 twist.angular.z = 0.0
 
 
         # Правило правой руки
         if not self.search:
-            if front and right:
+
+            if (front and right) or front:
                 twist.linear.x = -0.5
-                # self.get_logger().info("Поварачиваю на лево!")
             elif right:
+                if(ref_dist > dist):
+                    # self.get_logger().info(f'Необходимо исправить траеторию {dist}')
+                    twist.linear.x = -0.1
+                elif(ref_dist < dist):
+                    twist.linear.x = 0.1
+                    # self.get_logger().info(f'ХУЙ {dist}')
                 twist.angular.z = 2.0
                 # self.get_logger().info("Еду вперёд!")
             else:
                 twist.linear.x = 0.5
+                twist.angular.z = 0.5
                 # self.get_logger().info("Поварачиваю на право!")
 
         
@@ -89,7 +98,7 @@ class WallFollower(Node):
         right_y = self.robot_y + int(math.sin(self.robot_yaw + math.pi / 2))
         front_x = self.robot_x + int(math.cos(self.robot_yaw))
         front_y = self.robot_y + int(math.sin(self.robot_yaw))
-        # self.get_logger().info(f'robot_x: {self.robot_x}, robot_y: {self.robot_y}')
+        self.get_logger().info(f'robot_x: {self.robot_x}, robot_y: {self.robot_y}')
 
         right = self.is_occupied(right_x, right_y)
         front = self.is_occupied(front_x, front_y)
@@ -118,36 +127,31 @@ class WallFollower(Node):
 
     def is_wall_on_right(self, x, y, yaw, max_cells=10):
         """Проверяет, есть ли стена справа на заданном расстоянии"""
+        dist = 0
         for i in range(1, max_cells + 1):
-            nx_0 = x + int(math.cos(yaw+math.pi / 2) * i)
-            nx_light = x + int(math.cos(yaw+math.pi / 2) * i-1)
-            ny_0 = y + int(math.sin(yaw+math.pi / 2) * i)
-            metka = False
-            i_metka = i
-            rang = 30
-            for idx in range(rang):
-                ny_1 = y + int(math.sin(yaw+math.pi / 2) * (i_metka + idx-rang/2))
-                if (self.is_occupied(nx_0, ny_1) and not self.is_occupied(nx_light, ny_1)):
-                    metka = True
-                else:
-                    metka = False
-                    break
-
-            if (self.is_occupied(nx_0, ny_0) and metka):
-                self.get_logger().info(f'Координаты стены справа: ({nx_0}, {ny_0})')
-                return True  # стена найдена
-        return False
+            nx_0 = x + int(math.cos(yaw+ math.pi/2) * (i-1))
+            ny_0 = y + int(math.sin(yaw+ math.pi/2) * (i-1))
+            if (self.is_occupied(nx_0, ny_0)):
+                dist = self.check_wall(x, y, 40)
+                return True, abs(dist)  # стена найдена
+                
+        return False, abs(dist)
     
     def is_obstacle_in_front(self, x, y, yaw, max_cells=50):
         """
         Проверяет наличие стены на расстоянии до max_cells ячеек вперёд
         """
         for i in range(1, max_cells + 1):
-            nx = x + int(math.sin(yaw+math.pi / 2+math.pi) * i)
-            ny = y + int(math.cos(yaw+math.pi / 2 +math.pi) * i)
-            
+            nx = x + (math.cos(yaw + math.pi) * i)
+            ny = y + (math.sin(yaw +math.pi) * i)
+
+            # self.get_logger().info(f'зНАЧЕНИЕ СИНУСА: ({math.sin(yaw+math.pi / 2 + math.pi)})')
+            nx = round(nx)
+            ny = round(ny) 
+            # self.get_logger().info(f'Координаты поиска: {ny}')
+            # self.get_logger().info(f'Angel: ({yaw}')
             if self.is_occupied(nx, ny):
-                self.get_logger().info(f'Координаты стены: ({nx}, {ny})')
+                #self.get_logger().info(f'Координаты стены: ({nx}, {ny})')
                 return True  # стена найдена
             
         return False  # препятствий нет
@@ -163,8 +167,24 @@ class WallFollower(Node):
         if 0 <= idx < len(self.map_data):
             cell_value = self.map_data[idx]
             return cell_value == 100  # 100 = занято
-        
+        if not (0 <= x < width and 0 <= y < height):
+            return True  # вне карты = занято
         return False  # если за пределами карты — считаем как стену
+    
+    def check_wall(self, x, y, d=10):
+        dist = 50
+        dist_x = 0
+        for i in range(d):
+            x_0 = int(x + i-d/2)
+            for iy in range(d):
+                y_0 = int(y+i-d/2)
+                dx = x - x_0
+                dy = y - y_0
+                dist_x = math.sqrt(dx**2 + dy**2)
+                if (self.is_occupied(x_0, y_0) and dist_x<dist):
+                    dist = dist_x
+        return dist
+    
     @staticmethod
     def euler_from_quaternion(quat):
         import math
@@ -180,7 +200,9 @@ class WallFollower(Node):
         yaw = math.atan2(siny_cosp, cosy_cosp)
         return yaw  # возвращаем только угол поворота (yaw)
 
+    
 
+                    
 def main(args=None):
     rclpy.init(args=args)
     node = WallFollower()
