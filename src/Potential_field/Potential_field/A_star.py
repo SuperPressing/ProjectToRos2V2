@@ -7,8 +7,44 @@ import numpy as np
 from PIL import Image
 import yaml
 import matplotlib.pyplot as plt
-import heapq  # для приоритетной очереди в A*
+import heapq
 import math
+
+# ——————— Функция построения дуги окружности ———————
+def build_circular_arc(p_start, p_end, center, R_pixels, num_points=20):
+    """
+    Строит дугу окружности между двумя точками вокруг заданного центра
+    :param p_start: начальная точка (x, y)
+    :param p_end: конечная точка (x, y)
+    :param center: центр окружности (x, y)
+    :param R_pixels: радиус окружности (в пикселях)
+    :param num_points: количество точек на дуге
+    :return: список точек [(x, y), ...]
+    """
+    p_start = np.array(p_start)
+    p_end = np.array(p_end)
+    center = np.array(center)
+
+    angle_start = math.atan2(p_start[1] - center[1], p_start[0] - center[0])
+    angle_end = math.atan2(p_end[1] - center[1], p_end[0] - center[0])
+
+    # Определяем направление дуги
+    delta_angle = angle_end - angle_start
+    if abs(delta_angle) > math.pi:
+        if delta_angle < 0:
+            angle_end += 2 * math.pi
+        else:
+            angle_start += 2 * math.pi
+
+    angles = np.linspace(angle_start, angle_end, num_points)
+    arc_points = []
+
+    for theta in angles:
+        x = center[0] + R_pixels * math.cos(theta)
+        y = center[1] + R_pixels * math.sin(theta)
+        arc_points.append((int(x), int(y)))
+
+    return arc_points
 
 
 class AStarPlanner(Node):
@@ -77,23 +113,15 @@ class AStarPlanner(Node):
         if path:
             self.get_logger().info('Путь найден!')
 
-            # Найти точки с сильной нелинейностью
-            nonlinear_indices = self.find_strong_nonlinear_points(path, threshold_angle=150, step=3)
+            # Динамическое сглаживание с контролем отклонения
+            R_min_start = 1.0  # Начальный минимальный радиус (в метрах)
+            max_deviation_threshold = 0.5  # Максимальное отклонение (в метрах)
+            smoothed_path = self.smooth_path_with_dynamic_radius(path, R_min_start, max_deviation_threshold)
 
-            # Упростить список: оставить только ключевые повороты
-            simplified_indices = self.simplify_nonlinear_points(nonlinear_indices, min_gap=5)
+            # Публикация и отображение
+            self.publish_path(smoothed_path)
+            self.plot_paths_before_after(path, smoothed_path)
 
-            # Для каждой точки поворота найти точки за 1 м до и после
-            for idx in simplified_indices:
-                before_point, after_point = self.get_points_around_bend(path, idx, distance_meters=1.0)
-                if before_point and after_point:
-                    self.get_logger().info(
-                        f'За 1 метр: {before_point}, Поворот: {path[idx]}, После 1 метра: {after_point}'
-                    )
-
-            # Отобразить траекторию с отметкой упрощённых поворотов
-            self.publish_path(path)
-            self.plot_path(path, simplified_indices)
         else:
             self.get_logger().error('Путь не найден!')
 
@@ -108,8 +136,8 @@ class AStarPlanner(Node):
             return dx + dy + (math.sqrt(2) - 2) * min(dx, dy)
 
         neighbors = [
-            (0, 1), (1, 0), (0, -1), (-1, 0),  # основные направления
-            (1, 1), (1, -1), (-1, 1), (-1, -1)  # диагонали
+            (0, 1), (1, 0), (0, -1), (-1, 0),
+            (1, 1), (1, -1), (-1, 1), (-1, -1)
         ]
 
         move_cost = {
@@ -164,11 +192,10 @@ class AStarPlanner(Node):
         norm_v2 = np.linalg.norm(v2)
 
         if norm_v1 < 1e-6 or norm_v2 < 1e-6:
-            return float('inf')  # Вектор слишком маленький — не определён угол
+            return float('inf')  # Вектор слишком маленький
 
         unit_v1 = v1 / norm_v1
         unit_v2 = v2 / norm_v2
-
         dot_product = np.dot(unit_v1, unit_v2)
         dot_product = np.clip(dot_product, -1.0, 1.0)
 
@@ -176,11 +203,11 @@ class AStarPlanner(Node):
 
     def find_strong_nonlinear_points(self, path, threshold_angle=150, step=3):
         """
-        Находит точки с резким изменением направления
+        Находит индексы точек с резкими поворотами
         :param path: список координат [(x, y), ...]
         :param threshold_angle: порог угла (в градусах)
         :param step: шаг для анализа
-        :return: список индексов с резкими поворотами
+        :return: список индексов
         """
         nonlinear_indices = []
         n = len(path)
@@ -198,11 +225,183 @@ class AStarPlanner(Node):
 
             angle = self.angle_between(v1, v2)
 
-            if angle > 180-threshold_angle:
+            if angle > threshold_angle:
                 nonlinear_indices.append(i)
                 self.get_logger().info(f'Резкий поворот в точке {i}, угол = {angle:.1f}°')
 
         return sorted(nonlinear_indices)
+
+    def simplify_nonlinear_points(self, nonlinear_indices, min_gap=5):
+        """
+        Упрощает список точек поворотов, объединяя близкие
+        :param nonlinear_indices: список индексов с резкими поворотами
+        :param min_gap: минимальное расстояние между группами
+        :return: упрощённый список
+        """
+        if not nonlinear_indices:
+            return []
+
+        simplified = []
+        group = [nonlinear_indices[0]]
+
+        for idx in nonlinear_indices[1:]:
+            if abs(idx - group[-1]) <= min_gap:
+                group.append(idx)
+            else:
+                simplified.append(int(np.mean(group)))
+                group = [idx]
+
+        simplified.append(int(np.mean(group)))
+        return simplified
+
+    def get_points_around_bend(self, path, bend_index, distance_meters=1.0):
+        """
+        Возвращает точки за 1 м до и после точки поворота
+        :param path: список координат
+        :param bend_index: индекс точки поворота
+        :param distance_meters: расстояние от точки поворота для анализа
+        :return: (точка_до, точка_после)
+        """
+        if bend_index >= len(path) or bend_index < 0:
+            return None, None
+
+        distance_pixels = distance_meters / self.resolution
+        n = len(path)
+
+        i_before = bend_index
+        dist = 0.0
+        while i_before > 0 and dist < distance_pixels:
+            i_before -= 1
+            dist += math.hypot(
+                path[i_before + 1][0] - path[i_before][0],
+                path[i_before + 1][1] - path[i_before][1]
+            )
+
+        i_after = bend_index
+        dist = 0.0
+        while i_after < n - 1 and dist < distance_pixels:
+            i_after += 1
+            dist += math.hypot(
+                path[i_after][0] - path[i_after - 1][0],
+                path[i_after][1] - path[i_after - 1][1]
+            )
+
+        if i_before < 0 or i_after >= len(path):
+            return None, None
+
+        return path[i_before], path[i_after]
+
+    def smooth_path_with_min_radius(self, path, simplified_indices, R_min_meters=1.0):
+        """
+        Заменяет участки вокруг острых поворотов на дуги окружности
+        :param path: оригинальный путь
+        :param simplified_indices: точки с резкими поворотами
+        :param R_min_meters: минимальный радиус (в метрах)
+        :return: обновлённая траектория
+        """
+        smoothed_path = list(path)
+        offset = 0
+        R_min_pixels = R_min_meters / self.resolution
+
+        for idx in sorted(simplified_indices):
+            adjusted_idx = idx + offset
+
+            before_point, after_point = self.get_points_around_bend(
+                smoothed_path, adjusted_idx, distance_meters=1.0
+            )
+
+            if not before_point or not after_point:
+                continue
+
+            p_before = np.array(before_point)
+            p_after = np.array(after_point)
+            p_curr = np.array(smoothed_path[adjusted_idx])
+
+            # Центр окружности — середина между before и after
+            center = (p_before + p_after) / 2
+
+            # Если радиус слишком мал, корректируем центр
+            current_radius = np.linalg.norm(p_curr - center)
+            if current_radius < R_min_pixels:
+                direction = (p_curr - center) / (current_radius + 1e-8)
+                center = p_curr - direction * R_min_pixels
+
+            # Строим дугу окружности
+            arc_points = build_circular_arc(p_before, p_after, center, R_min_pixels)
+
+            # Удаляем старый участок и вставляем дугу
+            try:
+                i_start = smoothed_path.index(before_point)
+                i_end = smoothed_path.index(after_point)
+                if i_start >= i_end:
+                    continue
+                del smoothed_path[i_start:i_end+1]
+                smoothed_path[i_start:i_start] = arc_points
+                offset += len(arc_points) - (i_end - i_start + 1)
+            except ValueError:
+                self.get_logger().warn(f'Не удалось найти точки {before_point} или {after_point} в пути')
+
+        return smoothed_path
+
+    def calculate_max_deviation(self, original_path, smoothed_path):
+        """
+        Вычисляет максимальное отклонение между двумя траекториями (в метрах)
+        """
+        max_deviation = 0.0
+        smoothed_array = np.array(smoothed_path)
+
+        for x, y in original_path:
+            point = np.array((x, y))
+            distances = np.linalg.norm(smoothed_array - point, axis=1)
+            if len(distances) > 0:
+                min_distance = np.min(distances)
+                max_deviation = max(max_deviation, min_distance)
+
+        return max_deviation * self.resolution
+
+    def smooth_path_with_dynamic_radius(self, path, initial_R_min=1.0, max_deviation_threshold=0.5, max_iterations=100):
+        """
+        Сглаживает путь, динамически уменьшая радиус, если отклонение слишком велико
+        :param path: оригинальный путь
+        :param initial_R_min: начальный радиус (в метрах)
+        :param max_deviation_threshold: порог отклонения (в метрах)
+        :param max_iterations: лимит итераций
+        :return: сглаженная траектория
+        """
+        current_path = list(path)
+        R_min = initial_R_min
+        iteration = 0
+
+        while iteration < max_iterations:
+            # Найти точки с резкими поворотами
+            nonlinear_indices = self.find_strong_nonlinear_points(current_path, threshold_angle=20, step=3)
+            simplified_indices = self.simplify_nonlinear_points(nonlinear_indices, min_gap=5)
+
+            if not simplified_indices:
+                self.get_logger().info(f'Сглаживание завершено за {iteration} итераций')
+                break
+
+            self.get_logger().info(f'Итерация {iteration + 1}: найдено {len(simplified_indices)} точек перегиба')
+
+            # Применить сглаживание с текущим радиусом
+            new_path = self.smooth_path_with_min_radius(current_path, simplified_indices)
+
+            # Проверить отклонение
+            max_deviation = self.calculate_max_deviation(path, new_path)
+            self.get_logger().info(f'Максимальное отклонение: {max_deviation:.2f} м')
+
+            # Если отклонение допустимо — выйти
+            if max_deviation <= max_deviation_threshold:
+                self.get_logger().info('Отклонение в пределах порога. Сглаживание завершено.')
+                return new_path
+
+            # Иначе уменьшить радиус и попробовать снова
+            R_min = max(R_min - 0.1, 0.2)
+            current_path = new_path
+            iteration += 1
+
+        self.get_logger().warn(f'Достигнут лимит итераций ({max_iterations}), сглаживание не завершено')
+        return current_path
 
     def publish_path(self, path):
         msg = Path()
@@ -221,94 +420,22 @@ class AStarPlanner(Node):
         self.path_pub.publish(msg)
         self.get_logger().info('Путь опубликован на /potential_path')
 
-    def plot_path(self, path, nonlinear_indices=None):
-        plt.figure(figsize=(10, 8))
-        grid_vis = np.copy(self.grid)
+    def plot_paths_before_after(self, original_path, smoothed_path):
+        plt.figure(figsize=(12, 8))
+        orig = np.array(original_path)
+        smooth = np.array(smoothed_path)
 
-        plt.imshow(grid_vis, cmap='gray', origin='lower', alpha=0.7)
-
-        path_np = np.array(path)
-        plt.plot(path_np[:, 0], path_np[:, 1], 'r-', linewidth=2, label='A* путь')
-
-        if nonlinear_indices:
-            bad_points = np.array([path[i] for i in nonlinear_indices])
-            plt.scatter(bad_points[:, 0], bad_points[:, 1], color='orange', s=60, label='Резкие повороты')
-
+        plt.plot(orig[:, 0], orig[:, 1], 'r--', label='Оригинал')
+        plt.plot(smooth[:, 0], smooth[:, 1], 'g-', linewidth=2, label='Сглаженная')
         plt.plot(self.start_x, self.start_y, 'go', markersize=10, label='Начало')
         plt.plot(self.goal_x, self.goal_y, 'ro', markersize=10, label='Цель')
+
         plt.legend()
-        plt.title('A* планировщик пути')
+        plt.title('Путь до и после сглаживания (минимальный радиус = 1 м)')
         plt.axis('equal')
-        plt.tight_layout()
+        plt.grid(True)
         plt.show()
-    
-    def simplify_nonlinear_points(self, nonlinear_indices, min_gap=5):
-        """
-        Упрощает список индексов, объединяя рядом стоящие точки в группы
-        и возвращая только средний индекс для каждой группы.
 
-        :param nonlinear_indices: список индексов с резкими поворотами
-        :param min_gap: минимальное расстояние между группами (по индексу)
-        :return: упрощённый список индексов
-        """
-        if not nonlinear_indices:
-            return []
-
-        simplified = []
-        group = [nonlinear_indices[0]]
-
-        for idx in nonlinear_indices[1:]:
-            if abs(idx - group[-1]) <= min_gap:
-                group.append(idx)
-            else:
-                # Сохраняем средний индекс группы
-                simplified.append(int(np.mean(group)))
-                group = [idx]
-
-        # Добавляем последнюю группу
-        simplified.append(int(np.mean(group)))
-
-        self.get_logger().info(f'Сокращено с {len(nonlinear_indices)} до {len(simplified)} точек')
-        return simplified
-
-    def get_points_around_bend(self, path, bend_index, distance_meters=1.0):
-        """
-        Возвращает две точки: за 1 метр до и через 1 метр после точки поворота
-        :param path: список координат [(x, y), ...]
-        :param bend_index: индекс точки поворота
-        :param distance_meters: расстояние в метрах (например, 1 м)
-        :return: кортеж (точка_до, точка_после)
-        """
-
-        # Переводим расстояние в пиксели
-        distance_pixels = distance_meters / self.resolution
-
-        n = len(path)
-
-        # Ищем точку до поворота (~1 метр назад)
-        i_before = bend_index
-        dist = 0.0
-        while i_before > 0 and dist < distance_pixels:
-            i_before -= 1
-            dist += math.hypot(
-                path[i_before + 1][0] - path[i_before][0],
-                path[i_before + 1][1] - path[i_before][1]
-            )
-
-        # Ищем точку после поворота (~1 метр вперёд)
-        i_after = bend_index
-        dist = 0.0
-        while i_after < n - 1 and dist < distance_pixels:
-            i_after += 1
-            dist += math.hypot(
-                path[i_after][0] - path[i_after - 1][0],
-                path[i_after][1] - path[i_after - 1][1]
-            )
-
-        point_before = path[i_before] if i_before >= 0 else None
-        point_after = path[i_after] if i_after < len(path) else None
-
-        return point_before, point_after
 
 def main(args=None):
     rclpy.init(args=args)
