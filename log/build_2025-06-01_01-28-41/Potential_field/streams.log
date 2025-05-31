@@ -1,0 +1,56 @@
+[0.651s] Invoking command in '/home/neo/Documents/ros2_ws/src/Potential_field': PYTHONPATH=/home/neo/Documents/ros2_ws/build/Potential_field/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/Potential_field build --build-base /home/neo/Documents/ros2_ws/build/Potential_field/build install --record /home/neo/Documents/ros2_ws/build/Potential_field/install.log --single-version-externally-managed install_data
+[0.761s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[0.761s]   warnings.warn(msg)
+[0.832s] running egg_info
+[0.843s] creating ../../build/Potential_field/Potential_field.egg-info
+[0.843s] writing ../../build/Potential_field/Potential_field.egg-info/PKG-INFO
+[0.843s] writing dependency_links to ../../build/Potential_field/Potential_field.egg-info/dependency_links.txt
+[0.844s] writing entry points to ../../build/Potential_field/Potential_field.egg-info/entry_points.txt
+[0.844s] writing requirements to ../../build/Potential_field/Potential_field.egg-info/requires.txt
+[0.844s] writing top-level names to ../../build/Potential_field/Potential_field.egg-info/top_level.txt
+[0.844s] writing manifest file '../../build/Potential_field/Potential_field.egg-info/SOURCES.txt'
+[0.868s] reading manifest file '../../build/Potential_field/Potential_field.egg-info/SOURCES.txt'
+[0.868s] adding license file 'LICENSE'
+[0.868s] writing manifest file '../../build/Potential_field/Potential_field.egg-info/SOURCES.txt'
+[0.868s] running build
+[0.868s] running build_py
+[0.869s] creating /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] copying Potential_field/Reguluator.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] copying Potential_field/__init__.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] copying Potential_field/Markov_solutions.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] copying Potential_field/Traectory.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] copying Potential_field/Instantaneous_center.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] copying Potential_field/A_star.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] copying Potential_field/Kinimatica.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.869s] running install
+[0.872s] running install_lib
+[0.884s] creating /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/Reguluator.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/__init__.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/Markov_solutions.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/Traectory.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/Instantaneous_center.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/A_star.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/Kinimatica.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.884s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/Reguluator.py to Reguluator.cpython-310.pyc
+[0.885s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/__init__.py to __init__.cpython-310.pyc
+[0.885s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/Markov_solutions.py to Markov_solutions.cpython-310.pyc
+[0.885s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/Traectory.py to Traectory.cpython-310.pyc
+[0.885s]   File "/home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/Markov_solutions.py", line 39
+[0.885s]     int((pose.pose.position.y - self.origin[1]) / self.resolution)]
+[0.885s]                                                                   ^
+[0.885s] SyntaxError: closing parenthesis ']' does not match opening parenthesis '(' on line 38
+[0.885s] 
+[0.886s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/Instantaneous_center.py to Instantaneous_center.cpython-310.pyc
+[0.886s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/A_star.py to A_star.cpython-310.pyc
+[0.888s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/Kinimatica.py to Kinimatica.cpython-310.pyc
+[0.888s] running install_data
+[0.888s] creating /home/neo/Documents/ros2_ws/install/Potential_field/share/ament_index/resource_index/packages
+[0.888s] copying resource/Potential_field -> /home/neo/Documents/ros2_ws/install/Potential_field/share/ament_index/resource_index/packages
+[0.889s] copying package.xml -> /home/neo/Documents/ros2_ws/install/Potential_field/share/Potential_field
+[0.889s] running install_egg_info
+[0.901s] Copying ../../build/Potential_field/Potential_field.egg-info to /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field-0.0.0-py3.10.egg-info
+[0.901s] running install_scripts
+[0.996s] Installing Reguluator script to /home/neo/Documents/ros2_ws/install/Potential_field/lib/Potential_field
+[0.996s] writing list of installed files to '/home/neo/Documents/ros2_ws/build/Potential_field/install.log'
+[1.014s] Invoked command in '/home/neo/Documents/ros2_ws/src/Potential_field' returned '0': PYTHONPATH=/home/neo/Documents/ros2_ws/build/Potential_field/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/Potential_field build --build-base /home/neo/Documents/ros2_ws/build/Potential_field/build install --record /home/neo/Documents/ros2_ws/build/Potential_field/install.log --single-version-externally-managed install_data
