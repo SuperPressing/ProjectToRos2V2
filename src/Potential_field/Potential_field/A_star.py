@@ -114,10 +114,10 @@ class AStarPlanner(Node):
             self.get_logger().info('Путь найден!')
 
             # Динамическое сглаживание с контролем отклонения
-            R_min_start = 1.0  # Начальный минимальный радиус (в метрах)
+            R_min_start = 0.2  # Начальный минимальный радиус (в метрах)
             max_deviation_threshold = 0.5  # Максимальное отклонение (в метрах)
             smoothed_path = self.smooth_path_with_dynamic_radius(path, R_min_start, max_deviation_threshold)
-
+            print(smoothed_path)
             # Публикация и отображение
             self.publish_path(smoothed_path)
             self.plot_paths_before_after(path, smoothed_path)
@@ -372,7 +372,7 @@ class AStarPlanner(Node):
         R_min = initial_R_min
         iteration = 0
 
-        while iteration < max_iterations:
+        while (iteration < max_iterations) and False:
             # Найти точки с резкими поворотами
             nonlinear_indices = self.find_strong_nonlinear_points(current_path, threshold_angle=20, step=3)
             simplified_indices = self.simplify_nonlinear_points(nonlinear_indices, min_gap=5)
@@ -441,8 +441,8 @@ def main(args=None):
     rclpy.init(args=args)
 
     map_name = 'new_map'     # имя карты без расширения
-    start_x = 20             # стартовая X-координата (в пикселях)
-    start_y = 10             # стартовая Y-координата
+    start_x = 50             # стартовая X-координата (в пикселях)
+    start_y = 100            # стартовая Y-координата
     goal_x = 300             # целевая X-координата
     goal_y = 150             # целевая Y-координата
 
