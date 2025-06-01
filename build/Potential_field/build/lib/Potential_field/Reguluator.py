@@ -79,14 +79,13 @@ class TrajectoryFollower(Node):
         e2 = target['y'] - self.current_y
         e3 = target['theta'] - self.current_theta
         print(e1+e2)
-        print(target['x'])
         # Проекция ошибки на систему координат робота
         # de1 = v_control* math.cos(self.current_theta) + target['v']* math.cos(target['theta'])
         # de2 = v_control* math.sin(self.current_theta) + target['v']* math.sin(target['theta'])
         # de3 = w_control-target['theta']
         # Управление
         k1 = 0.1
-        k2 = 0.1 
+        k2 = 0.01
         u1 = -target['v']+(target['v']*(e1*math.cos(target['theta'])+e2*math.sin(target['theta'])))/(e2*math.cos(target['theta']+e3)+e2*math.sin(target['theta']+e3)+0.0001)-k1*(e1*math.cos(target['theta']+e3)+e2*math.sin(target['theta']+e3))
         u2 = -k2*e3
 

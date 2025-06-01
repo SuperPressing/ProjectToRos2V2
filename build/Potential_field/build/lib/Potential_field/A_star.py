@@ -71,27 +71,26 @@ class AStarPlanner(Node):
         try:
             with open(f"{self.map_name}.yaml", "r") as f:
                 self.metadata = yaml.safe_load(f)
-
             img = Image.open(f"{self.map_name}.pgm").convert("L")
             self.width, self.height = img.size
             self.resolution = self.metadata['resolution']
             self.origin = self.metadata['origin']
-
             pixels = list(img.getdata())
-            self.grid = np.zeros((self.height, self.width), dtype=np.uint8)
-
+            grid = np.zeros((self.height, self.width), dtype=np.uint8)
             for y in range(self.height):
                 for x in range(self.width):
                     idx = x + y * self.width
                     if pixels[idx] == 0:
-                        self.grid[y][x] = 1  # стена
+                        grid[y][x] = 1  # стена
                     elif pixels[idx] > 0:
-                        self.grid[y][x] = 0  # свободно
+                        grid[y][x] = 0  # свободно
                     else:
-                        self.grid[y][x] = 1  # неизвестно = стена
+                        grid[y][x] = 1  # неизвестно = стена
 
-            self.get_logger().info(f'Карта загружена: {self.width}x{self.height}')
+            # Расширяем препятствия на 0.2 метра
+            self.grid = self.expand_obstacles(grid, distance_meters=0.2)
 
+            self.get_logger().info(f'Карта загружена и расширена: {self.width}x{self.height}')
         except Exception as e:
             self.get_logger().error(f'Ошибка загрузки карты: {e}')
             raise
@@ -129,7 +128,23 @@ class AStarPlanner(Node):
 
     def is_valid_point(self, point):
         x, y = point
-        return 0 <= x < self.width and 0 <= y < self.height and self.grid[y][x] == 0
+        if not (0 <= x < self.width and 0 <= y < self.height):
+            return False
+
+        # Проверяем, что текущая точка свободна
+        if self.grid[y][x] != 0:
+            return False
+
+        # Дополнительно можно проверить небольшую окрестность (например, 3x3)
+        check_radius = 1  # пикселей
+        for dy in range(-check_radius, check_radius + 1):
+            for dx in range(-check_radius, check_radius + 1):
+                nx = x + dx
+                ny = y + dy
+                if 0 <= nx < self.width and 0 <= ny < self.height:
+                    if self.grid[ny][nx] != 0:
+                        return False
+        return True
 
     def a_star(self, start, goal):
         def heuristic(a, b):
@@ -422,6 +437,30 @@ class AStarPlanner(Node):
         self.path_pub.publish(msg)
         self.get_logger().info('Путь опубликован на /potential_path')
 
+    def expand_obstacles(self, grid, distance_meters=0.2):
+        """
+        Расширяет препятствия на заданное расстояние (в метрах)
+        :param grid: исходная карта (numpy 2D array)
+        :param distance_meters: расстояние от препятствий (в метрах)
+        :return: новая карта с расширенными препятствиями
+        """
+        height, width = grid.shape
+        expanded_grid = grid.copy()
+        distance_pixels = int(distance_meters / self.resolution)
+
+        # Создаем маску расстояния
+        for y in range(height):
+            for x in range(width):
+                if grid[y][x] == 1:  # если это стена
+                    # Заполняем квадрат вокруг точки
+                    for dy in range(-distance_pixels, distance_pixels + 1):
+                        for dx in range(-distance_pixels, distance_pixels + 1):
+                            nx = x + dx
+                            ny = y + dy
+                            if 0 <= nx < width and 0 <= ny < height:
+                                expanded_grid[ny][nx] = 1  # тоже считаем за препятствие
+        return expanded_grid
+    
     def plot_paths_before_after(self, original_path, smoothed_path):
         plt.figure(figsize=(12, 8))
         orig = np.array(original_path)
@@ -445,8 +484,8 @@ def main(args=None):
     map_name = 'new_map'     # имя карты без расширения
     start_x = 200             # стартовая X-координата (в пикселях)
     start_y = 165            # стартовая Y-координата
-    goal_x = 100             # целевая X-координата
-    goal_y = 300             # целевая Y-координата
+    goal_x = 50             # целевая X-координата
+    goal_y = 250             # целевая Y-координата
 
     node = AStarPlanner(map_name, start_x, start_y, goal_x, goal_y)
 
