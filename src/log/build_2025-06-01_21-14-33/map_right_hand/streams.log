@@ -1,0 +1,36 @@
+[1.697s] Invoking command in '/home/neo/Documents/ros2_ws/src/map_right_hand': PYTHONPATH=/home/neo/Documents/ros2_ws/src/build/map_right_hand/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/map_right_hand build --build-base /home/neo/Documents/ros2_ws/src/build/map_right_hand/build install --record /home/neo/Documents/ros2_ws/src/build/map_right_hand/install.log --single-version-externally-managed install_data
+[1.866s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[1.866s]   warnings.warn(msg)
+[2.040s] running egg_info
+[2.061s] creating ../build/map_right_hand/map_right_hand.egg-info
+[2.061s] writing ../build/map_right_hand/map_right_hand.egg-info/PKG-INFO
+[2.061s] writing dependency_links to ../build/map_right_hand/map_right_hand.egg-info/dependency_links.txt
+[2.062s] writing entry points to ../build/map_right_hand/map_right_hand.egg-info/entry_points.txt
+[2.062s] writing requirements to ../build/map_right_hand/map_right_hand.egg-info/requires.txt
+[2.062s] writing top-level names to ../build/map_right_hand/map_right_hand.egg-info/top_level.txt
+[2.062s] writing manifest file '../build/map_right_hand/map_right_hand.egg-info/SOURCES.txt'
+[2.100s] reading manifest file '../build/map_right_hand/map_right_hand.egg-info/SOURCES.txt'
+[2.100s] adding license file 'LICENSE'
+[2.101s] writing manifest file '../build/map_right_hand/map_right_hand.egg-info/SOURCES.txt'
+[2.101s] running build
+[2.102s] running build_py
+[2.102s] creating /home/neo/Documents/ros2_ws/src/build/map_right_hand/build/lib/map_right_hand
+[2.102s] copying map_right_hand/__init__.py -> /home/neo/Documents/ros2_ws/src/build/map_right_hand/build/lib/map_right_hand
+[2.102s] copying map_right_hand/right_hand.py -> /home/neo/Documents/ros2_ws/src/build/map_right_hand/build/lib/map_right_hand
+[2.102s] running install
+[2.106s] running install_lib
+[2.124s] creating /home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages/map_right_hand
+[2.124s] copying /home/neo/Documents/ros2_ws/src/build/map_right_hand/build/lib/map_right_hand/__init__.py -> /home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages/map_right_hand
+[2.125s] copying /home/neo/Documents/ros2_ws/src/build/map_right_hand/build/lib/map_right_hand/right_hand.py -> /home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages/map_right_hand
+[2.125s] byte-compiling /home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages/map_right_hand/__init__.py to __init__.cpython-310.pyc
+[2.125s] byte-compiling /home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages/map_right_hand/right_hand.py to right_hand.cpython-310.pyc
+[2.127s] running install_data
+[2.127s] creating /home/neo/Documents/ros2_ws/src/install/map_right_hand/share/ament_index/resource_index/packages
+[2.127s] copying resource/map_right_hand -> /home/neo/Documents/ros2_ws/src/install/map_right_hand/share/ament_index/resource_index/packages
+[2.127s] copying package.xml -> /home/neo/Documents/ros2_ws/src/install/map_right_hand/share/map_right_hand
+[2.127s] running install_egg_info
+[2.147s] Copying ../build/map_right_hand/map_right_hand.egg-info to /home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages/map_right_hand-0.0.0-py3.10.egg-info
+[2.147s] running install_scripts
+[2.291s] Installing right_hand script to /home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/map_right_hand
+[2.292s] writing list of installed files to '/home/neo/Documents/ros2_ws/src/build/map_right_hand/install.log'
+[2.328s] Invoked command in '/home/neo/Documents/ros2_ws/src/map_right_hand' returned '0': PYTHONPATH=/home/neo/Documents/ros2_ws/src/build/map_right_hand/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/src/install/map_right_hand/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/map_right_hand build --build-base /home/neo/Documents/ros2_ws/src/build/map_right_hand/build install --record /home/neo/Documents/ros2_ws/src/build/map_right_hand/install.log --single-version-externally-managed install_data

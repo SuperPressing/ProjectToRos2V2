@@ -481,9 +481,9 @@ class AStarPlanner(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    map_name = 'new_map'     # имя карты без расширения
-    start_x = 200             # стартовая X-координата (в пикселях)
-    start_y = 165            # стартовая Y-координата
+    map_name = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/new_map'     # имя карты без расширения
+    start_x = 150             # стартовая X-координата (в пикселях)
+    start_y = 150            # стартовая Y-координата
     goal_x = 50             # целевая X-координата
     goal_y = 250             # целевая Y-координата
 

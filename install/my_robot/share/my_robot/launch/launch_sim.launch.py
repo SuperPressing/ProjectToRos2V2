@@ -7,7 +7,7 @@ from launch.actions import IncludeLaunchDescription, ExecuteProcess, RegisterEve
 from launch.event_handlers import OnProcessStart, OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-
+from launch.actions import TimerAction
 
 def generate_launch_description():
     package_name = 'my_robot'
@@ -98,23 +98,55 @@ def generate_launch_description():
     #     delayed_joint_broad_spawner,
     # ])
     # === ДОБАВЛЯЕМ SLAM TOOLBOX С ЗАДЕРЖКОЙ ===
-    slam_toolbox_node = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [os.path.join(get_package_share_directory("slam_toolbox"), 'launch', 'online_async_launch.py')]
-        ),
-        launch_arguments={
-            'use_sim_time': 'true',
-            'params_file': os.path.join(get_package_share_directory(package_name), 'config', 'mapper_params_online_async.yaml')
-        }.items()
-    )
+    # slam_toolbox_node = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         [os.path.join(get_package_share_directory("slam_toolbox"), 'launch', 'online_async_launch.py')]
+    #     ),
+    #     launch_arguments={
+    #         'use_sim_time': 'true',
+    #         'params_file': os.path.join(get_package_share_directory(package_name), 'config', 'mapper_params_online_async.yaml')
+    #     }.items()
+    # )
 
-    # Запускаем SLAM после `joint_broad`
-    delayed_slam_toolbox = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=spawn_entity,
-            on_exit=[slam_toolbox_node],
-        )
+    # # Запускаем SLAM после `joint_broad`
+    # delayed_slam_toolbox = RegisterEventHandler(
+    #     event_handler=OnProcessExit(
+    #         target_action=spawn_entity,
+    #         on_exit=[slam_toolbox_node],
+    #     )
+    # )
+
+    map_server = Node(
+    package='nav2_map_server',
+    executable='map_server',
+    name='map_server',
+    output='screen',
+    parameters=[{
+        'yaml_filename': '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/MapLoc.yaml',
+        'use_sim_time': True
+    }]
     )
+    amcl = Node(
+    package='nav2_amcl',
+    executable='amcl',
+    name='amcl',
+    output='screen',
+    parameters=[{
+        'use_sim_time': True,
+        'params_file': '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/MapLoc.yaml'
+    }]
+)
+    lifecycle_manager = Node(
+    package='nav2_lifecycle_manager',
+    executable='lifecycle_manager',
+    name='lifecycle_manager_localization',
+    output='screen',
+    parameters=[
+        {'use_sim_time': True},
+        {'autostart': True},
+        {'node_names': ['map_server', 'amcl']}
+    ]
+)
     map_talker = Node(
         package='editing_map',
         executable='talker',
@@ -128,6 +160,21 @@ def generate_launch_description():
         name='map_editing',
         output='screen'
     )
+    delayed_lifecycle_manager = TimerAction(
+        period=5.0,  # ждёт 5 секунд после старта всех процессов
+        actions=[lifecycle_manager]
+    )
+    set_initial_pose = ExecuteProcess(
+        cmd=[
+            'ros2', 'topic', 'pub', '/initialpose', 'geometry_msgs/PoseWithCovarianceStamped',
+            '{ header: { frame_id: "map" }, pose: { pose: { position: { x: 150, y: 150, z: 0.0 }, orientation: { z: 0.0, w: 1.0 } } } }'
+        ],
+        output='screen'
+    )
+    set_initial_pose_delayed = TimerAction(
+    period=5.0,  # задержка в секундах
+    actions=[set_initial_pose]
+)
     # Launch them all!
     return LaunchDescription([
         rsp,
@@ -136,9 +183,14 @@ def generate_launch_description():
         #robot_state_publisher_node,
         gazebo,
         spawn_entity,
-        delayed_slam_toolbox,
+        map_server,
+        amcl,
+        delayed_lifecycle_manager,
+        set_initial_pose_delayed,
+        # delayed_slam_toolbox,
         map_talker,
         map_read,
+        
         #dlayed_diff_drive_spawner,
         #delayed_joint_broad_spawner,
     ])

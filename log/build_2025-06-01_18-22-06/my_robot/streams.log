@@ -1,0 +1,35 @@
+[1.452s] Invoking command in '/home/neo/Documents/ros2_ws/src/my_robot': PYTHONPATH=/home/neo/Documents/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot build --build-base /home/neo/Documents/ros2_ws/build/my_robot/build install --record /home/neo/Documents/ros2_ws/build/my_robot/install.log --single-version-externally-managed install_data
+[1.567s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[1.568s]   warnings.warn(msg)
+[1.653s] running egg_info
+[1.668s] writing ../../build/my_robot/my_robot.egg-info/PKG-INFO
+[1.668s] writing dependency_links to ../../build/my_robot/my_robot.egg-info/dependency_links.txt
+[1.668s] writing requirements to ../../build/my_robot/my_robot.egg-info/requires.txt
+[1.669s] writing top-level names to ../../build/my_robot/my_robot.egg-info/top_level.txt
+[1.698s] reading manifest file '../../build/my_robot/my_robot.egg-info/SOURCES.txt'
+[1.699s] writing manifest file '../../build/my_robot/my_robot.egg-info/SOURCES.txt'
+[1.699s] running build
+[1.700s] running build_py
+[1.700s] copying my_robot/__init__.py -> /home/neo/Documents/ros2_ws/build/my_robot/build/lib/my_robot
+[1.700s] running install
+[1.703s] running install_lib
+[1.718s] running install_data
+[1.718s] copying resource/my_robot -> /home/neo/Documents/ros2_ws/install/my_robot/share/ament_index/resource_index/packages
+[1.718s] copying package.xml -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot
+[1.719s] copying launch/launch_robot.launch.py -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/launch
+[1.719s] copying launch/launch_sim.launch.py -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/launch
+[1.719s] copying launch/rsp.launch.py -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/launch
+[1.719s] copying description/robot.urdf.xacro -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/description
+[1.719s] copying description/robot_core.xacro -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/description
+[1.719s] copying description/lidar.xacro -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/description
+[1.719s] copying description/inertial_macros.xacro -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/description
+[1.719s] copying description/gazebo_control.xacro -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/description
+[1.720s] copying description/ros2_control.xacro -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/description
+[1.720s] copying world/WareHouseV2.world -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/worlds
+[1.720s] copying config/my_controllers.yaml -> /home/neo/Documents/ros2_ws/install/my_robot/share/my_robot/config
+[1.720s] running install_egg_info
+[1.736s] removing '/home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages/my_robot-0.0.0-py3.10.egg-info' (and everything under it)
+[1.736s] Copying ../../build/my_robot/my_robot.egg-info to /home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages/my_robot-0.0.0-py3.10.egg-info
+[1.736s] running install_scripts
+[1.852s] writing list of installed files to '/home/neo/Documents/ros2_ws/build/my_robot/install.log'
+[1.887s] Invoked command in '/home/neo/Documents/ros2_ws/src/my_robot' returned '0': PYTHONPATH=/home/neo/Documents/ros2_ws/build/my_robot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/my_robot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot build --build-base /home/neo/Documents/ros2_ws/build/my_robot/build install --record /home/neo/Documents/ros2_ws/build/my_robot/install.log --single-version-externally-managed install_data

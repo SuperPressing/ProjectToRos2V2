@@ -1,0 +1,21 @@
+running egg_info
+writing ../build/map_test/map_test.egg-info/PKG-INFO
+writing dependency_links to ../build/map_test/map_test.egg-info/dependency_links.txt
+writing requirements to ../build/map_test/map_test.egg-info/requires.txt
+writing top-level names to ../build/map_test/map_test.egg-info/top_level.txt
+reading manifest file '../build/map_test/map_test.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../build/map_test/map_test.egg-info/SOURCES.txt'
+running build
+running build_py
+copying map_test/__init__.py -> /home/neo/Documents/ros2_ws/src/build/map_test/build/lib/map_test
+running install
+running install_lib
+running install_data
+copying resource/map_test -> /home/neo/Documents/ros2_ws/src/install/map_test/share/ament_index/resource_index/packages
+copying package.xml -> /home/neo/Documents/ros2_ws/src/install/map_test/share/map_test
+running install_egg_info
+removing '/home/neo/Documents/ros2_ws/src/install/map_test/lib/python3.10/site-packages/map_test-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../build/map_test/map_test.egg-info to /home/neo/Documents/ros2_ws/src/install/map_test/lib/python3.10/site-packages/map_test-0.0.0-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/neo/Documents/ros2_ws/src/build/map_test/install.log'

@@ -59,10 +59,12 @@ class TrajectoryFollower(Node):
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
         
-        self.current_x = int((x - self.map_info.origin.position.x) / self.map_info.resolution)
-        self.current_y = int((y - self.map_info.origin.position.y) / self.map_info.resolution)
+        # self.current_x = int((x - self.map_info.origin.position.x) / self.map_info.resolution)
+        # self.current_y = int((y - self.map_info.origin.position.y) / self.map_info.resolution)
+        self.current_x = x*20.9+250
+        self.current_y = y*20.9+150
         yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
-        self.current_theta = yaw
+        self.current_theta = yaw + math.pi
 
 
     def angle_diff(self, a, b):
@@ -81,7 +83,7 @@ class TrajectoryFollower(Node):
         # Ошибки
         e1 = target['x'] - self.current_x
         e2 = target['y'] - self.current_y
-        e3 = self.angle_diff(target['theta'], self.current_theta+math.pi)
+        e3 = self.angle_diff(target['theta'], self.current_theta)
         # print(f'Текущий x {self.current_x} Рассчитанный x {target["x"]}')
         # print(f'Текущий y {self.current_y} Рассчитанный y {target["y"]}')
         # print(f'Текущий theta {self.current_theta} Рассчитанный theta {target["theta"]} ошибка е3 {e3}')
@@ -90,30 +92,33 @@ class TrajectoryFollower(Node):
         # de2 = v_control* math.sin(self.current_theta) + target['v']* math.sin(target['theta'])
         # de3 = w_control-target['theta']
         # Управление
-        k1 = 0.1
-        k2 = 0.1
-        u1 = -target['v']+(target['v']*(e1*math.cos(target['theta'])+e2*math.sin(target['theta'])))/(e1*math.cos(target['theta']+e3)+e2*math.sin(target['theta']+e3)+0.0001)-k1*(e1*math.cos(target['theta']+e3)+e2*math.sin(target['theta']+e3))
+        k1 = 5
+        k2 = 1
+        s = e1*math.cos(target['theta']+e3)+e2*math.sin(target['theta']+e3)
+        u1 = 0
+        if s > 0.01:
+          u1 = -target['v']+(target['v']*(e1*math.cos(target['theta'])+e2*math.sin(target['theta'])))/(e1*math.cos(target['theta']+e3)+e2*math.sin(target['theta']+e3)+0.0001)-k1*(e1*math.cos(target['theta']+e3)+e2*math.sin(target['theta']+e3))
         u2 = -k2*e3
-        if(abs(u1) > 5 or abs(u2)>5):
+        if(abs(u1) > 10 or abs(u2)>5):
             print(f'u1 {u1} u2 {u2}')
             print(f'Текущий x {self.current_x} Рассчитанный x {target["x"]}')
             print(f'Текущий y {self.current_y} Рассчитанный y {target["y"]}')
             print(f'Текущий theta {self.current_theta} Рассчитанный theta {target["theta"]} ошибка е3 {e3}')
         v_control = target['v'] + u1
         w_control = target['w'] + u2
-        if(v_control>10):
-            v_control = 10.0
-        elif(v_control<-10):
-            v_control = -10.0
+        if(v_control>2):
+            v_control = 2.0
+        elif(v_control<-2):
+            v_control = -2.0
 
-        if(w_control>1):
-            w_control = 1.0
-        elif(w_control<-1):
-            w_control = -1.0
+        if(w_control>0.1):
+            w_control = 0.1
+        elif(w_control<-0.1):
+            w_control = -0.1
         # Формируем команду
         cmd = Twist()
         cmd.linear.x = w_control
-        cmd.angular.z = v_control
+        cmd.angular.z = -v_control
         self.cmd_pub.publish(cmd)
 
     @staticmethod

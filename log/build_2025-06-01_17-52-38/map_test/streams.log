@@ -1,0 +1,24 @@
+[1.556s] Invoking command in '/home/neo/Documents/ros2_ws/src/map_test': PYTHONPATH=/home/neo/Documents/ros2_ws/build/map_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/map_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/map_test build --build-base /home/neo/Documents/ros2_ws/build/map_test/build install --record /home/neo/Documents/ros2_ws/build/map_test/install.log --single-version-externally-managed install_data
+[1.676s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[1.676s]   warnings.warn(msg)
+[1.753s] running egg_info
+[1.766s] writing ../../build/map_test/map_test.egg-info/PKG-INFO
+[1.771s] writing dependency_links to ../../build/map_test/map_test.egg-info/dependency_links.txt
+[1.771s] writing requirements to ../../build/map_test/map_test.egg-info/requires.txt
+[1.771s] writing top-level names to ../../build/map_test/map_test.egg-info/top_level.txt
+[1.797s] reading manifest file '../../build/map_test/map_test.egg-info/SOURCES.txt'
+[1.798s] adding license file 'LICENSE'
+[1.798s] writing manifest file '../../build/map_test/map_test.egg-info/SOURCES.txt'
+[1.798s] running build
+[1.798s] running build_py
+[1.799s] copying map_test/__init__.py -> /home/neo/Documents/ros2_ws/build/map_test/build/lib/map_test
+[1.799s] running install
+[1.802s] running install_lib
+[1.816s] running install_data
+[1.817s] copying resource/map_test -> /home/neo/Documents/ros2_ws/install/map_test/share/ament_index/resource_index/packages
+[1.817s] copying package.xml -> /home/neo/Documents/ros2_ws/install/map_test/share/map_test
+[1.817s] running install_egg_info
+[1.830s] removing '/home/neo/Documents/ros2_ws/install/map_test/lib/python3.10/site-packages/map_test-0.0.0-py3.10.egg-info' (and everything under it)
+[1.831s] Copying ../../build/map_test/map_test.egg-info to /home/neo/Documents/ros2_ws/install/map_test/lib/python3.10/site-packages/map_test-0.0.0-py3.10.egg-info
+[1.831s] running install_scripts
+[1.936s] writing list of installed files to '/home/neo/Documents/ros2_ws/build/map_test/install.log'

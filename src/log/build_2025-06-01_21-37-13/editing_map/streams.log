@@ -1,0 +1,30 @@
+[3.533s] Invoking command in '/home/neo/Documents/ros2_ws/src/editing_map': PYTHONPATH=/home/neo/Documents/ros2_ws/src/build/editing_map/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/src/install/editing_map/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/editing_map build --build-base /home/neo/Documents/ros2_ws/src/build/editing_map/build install --record /home/neo/Documents/ros2_ws/src/build/editing_map/install.log --single-version-externally-managed install_data
+[3.825s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[3.825s]   warnings.warn(msg)
+[4.014s] running egg_info
+[4.049s] writing ../build/editing_map/editing_map.egg-info/PKG-INFO
+[4.050s] writing dependency_links to ../build/editing_map/editing_map.egg-info/dependency_links.txt
+[4.050s] writing entry points to ../build/editing_map/editing_map.egg-info/entry_points.txt
+[4.050s] writing requirements to ../build/editing_map/editing_map.egg-info/requires.txt
+[4.051s] writing top-level names to ../build/editing_map/editing_map.egg-info/top_level.txt
+[4.122s] reading manifest file '../build/editing_map/editing_map.egg-info/SOURCES.txt'
+[4.122s] adding license file 'LICENSE'
+[4.124s] writing manifest file '../build/editing_map/editing_map.egg-info/SOURCES.txt'
+[4.124s] running build
+[4.124s] running build_py
+[4.125s] copying editing_map/listener.py -> /home/neo/Documents/ros2_ws/src/build/editing_map/build/lib/editing_map
+[4.125s] copying editing_map/__init__.py -> /home/neo/Documents/ros2_ws/src/build/editing_map/build/lib/editing_map
+[4.125s] copying editing_map/talker.py -> /home/neo/Documents/ros2_ws/src/build/editing_map/build/lib/editing_map
+[4.126s] running install
+[4.132s] running install_lib
+[4.161s] running install_data
+[4.162s] copying resource/editing_map -> /home/neo/Documents/ros2_ws/src/install/editing_map/share/ament_index/resource_index/packages
+[4.162s] copying package.xml -> /home/neo/Documents/ros2_ws/src/install/editing_map/share/editing_map
+[4.162s] running install_egg_info
+[4.190s] removing '/home/neo/Documents/ros2_ws/src/install/editing_map/lib/python3.10/site-packages/editing_map-0.0.0-py3.10.egg-info' (and everything under it)
+[4.191s] Copying ../build/editing_map/editing_map.egg-info to /home/neo/Documents/ros2_ws/src/install/editing_map/lib/python3.10/site-packages/editing_map-0.0.0-py3.10.egg-info
+[4.191s] running install_scripts
+[4.419s] Installing listener script to /home/neo/Documents/ros2_ws/src/install/editing_map/lib/editing_map
+[4.419s] Installing talker script to /home/neo/Documents/ros2_ws/src/install/editing_map/lib/editing_map
+[4.420s] writing list of installed files to '/home/neo/Documents/ros2_ws/src/build/editing_map/install.log'
+[4.457s] Invoked command in '/home/neo/Documents/ros2_ws/src/editing_map' returned '0': PYTHONPATH=/home/neo/Documents/ros2_ws/src/build/editing_map/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/src/install/editing_map/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/editing_map build --build-base /home/neo/Documents/ros2_ws/src/build/editing_map/build install --record /home/neo/Documents/ros2_ws/src/build/editing_map/install.log --single-version-externally-managed install_data
