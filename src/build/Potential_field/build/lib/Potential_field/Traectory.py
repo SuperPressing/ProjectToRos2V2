@@ -23,8 +23,8 @@ data_list = ast.literal_eval(data_str)
 path = np.array(data_list, dtype=np.float64)
 
 # === ПАРАМЕТРЫ ДВИЖЕНИЯ ===
-v_max = 2     # максимальная линейная скорость, м/с
-a = 0.1         # ускорение, м/с²
+v_max = 5     # максимальная линейная скорость, м/с
+a = 0.5        # ускорение, м/с²
 
 # === РАСЧЁТ ДЛИНЫ ПУТИ ===
 distances = np.sqrt(np.sum(np.diff(path, axis=0)**2, axis=1))

@@ -482,10 +482,10 @@ def main(args=None):
     rclpy.init(args=args)
 
     map_name = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/new_map'     # имя карты без расширения
-    start_x = 258             # стартовая X-координата (в пикселях)
+    start_x = 250             # стартовая X-координата (в пикселях)
     start_y = 150            # стартовая Y-координата
     goal_x = 50             # целевая X-координата
-    goal_y = 250             # целевая Y-координата
+    goal_y = 100             # целевая Y-координата
 
     node = AStarPlanner(map_name, start_x, start_y, goal_x, goal_y)
 

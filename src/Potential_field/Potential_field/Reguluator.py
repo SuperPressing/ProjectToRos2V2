@@ -18,6 +18,9 @@ class TrajectoryFollower(Node):
             self.odom_callback,
             10)
         
+        self.filter_v = FirstOrderFilter(alpha=0.1)
+        self.filter_w = FirstOrderFilter(alpha=0.1)
+
         # Публикатор
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.create_subscription(OccupancyGrid, '/map_modified', self.map_callback, 10)
@@ -40,7 +43,8 @@ class TrajectoryFollower(Node):
         self.current_theta = 0.0
         self.current_v = 0.0
         self.current_w = 0.0
-
+        self.v_control = 0.0
+        self.w_control = 0.0
         # Параметры контроллера
         self.K1 = 1.5  # продольное усиление
         self.K2 = 1.2  # угловое усиление
@@ -106,21 +110,21 @@ class TrajectoryFollower(Node):
             print(f'Текущий theta {self.current_theta} Рассчитанный theta {target["theta"]} ошибка е3 {e3}')
         v_control = target['v'] + u1
         w_control = target['w'] + u2
-        if(v_control>2):
-            v_control = 2.0
-        elif(v_control<-2):
-            v_control = -2.0
 
-        if(w_control>0.1):
-            w_control = 0.1
-        elif(w_control<-0.1):
-            w_control = -0.1
-        # Формируем команду
+        v_control = max(-2.0, min(v_control, 2.0))
+        w_control = max(-0.1, min(w_control, 0.1))
+
+        # Пропускаем через фильтр для плавности
+        v_filtered = self.filter_v.update(v_control)
+        w_filtered = self.filter_w.update(w_control)
         cmd = Twist()
-        cmd.linear.x = w_control
-        cmd.angular.z = -v_control
+        cmd.linear.x = w_filtered
+        cmd.angular.z = -v_filtered
         self.cmd_pub.publish(cmd)
 
+    def update(self, new_value):
+        self.filtered_value = self.alpha * new_value + (1 - self.alpha) * self.filtered_value
+        return self.filtered_value
     @staticmethod
     def euler_from_quaternion(quat):
         import math
@@ -143,6 +147,18 @@ def main(args=None):
     follower.destroy_node()
     rclpy.shutdown()
 
+class FirstOrderFilter:
+    def __init__(self, alpha=0.3):
+        """
+        alpha: коэффициент "веса" нового значения (0 < alpha <= 1)
+               чем выше alpha — тем быстрее реакция на изменения
+        """
+        self.alpha = alpha
+        self.filtered_value = 0.0
 
+    def update(self, new_value):
+        self.filtered_value = self.alpha * new_value + (1 - self.alpha) * self.filtered_value
+        return self.filtered_value
+    
 if __name__ == '__main__':
     main()

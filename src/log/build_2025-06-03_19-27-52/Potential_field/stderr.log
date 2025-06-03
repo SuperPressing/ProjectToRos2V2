@@ -1,0 +1,7 @@
+/home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+  warnings.warn(msg)
+  File "/home/neo/Documents/ros2_ws/src/install/Potential_field/lib/python3.10/site-packages/Potential_field/Markov_solutions.py", line 39
+    int((pose.pose.position.y - self.origin[1]) / self.resolution)]
+                                                                  ^
+SyntaxError: closing parenthesis ']' does not match opening parenthesis '(' on line 38
+
