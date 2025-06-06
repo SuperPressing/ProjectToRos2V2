@@ -6,7 +6,8 @@ from geometry_msgs.msg import Twist, PoseStamped
 from visualization_msgs.msg import MarkerArray, Marker
 import math
 import ast
-
+import subprocess
+import json
 class TrajectoryFollower(Node):
     def __init__(self):
         super().__init__('trajectory_follower')
@@ -17,10 +18,9 @@ class TrajectoryFollower(Node):
             '/odom',
             self.odom_callback,
             10)
-        
-        self.filter_v = FirstOrderFilter(alpha=0.5)
-        self.filter_w = FirstOrderFilter(alpha=0.5)
-
+        self.markov = False
+        self.filter_v = FirstOrderFilter(alpha=0.1)
+        self.filter_w = FirstOrderFilter(alpha=0.1)
         # Публикатор
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.create_subscription(OccupancyGrid, '/map_modified', self.map_callback, 10)
@@ -69,6 +69,13 @@ class TrajectoryFollower(Node):
         self.current_y = y*20.9+150
         yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
         self.current_theta = yaw + math.pi
+        subprocess.run(['python3', '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/Markov_solutions.py'])
+        with open('/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/Flag.json', 'r') as f:
+            boolean_value = f.read().strip()
+        self.markov = boolean_value.lower() == 'true'
+        if(self.markov):
+            self.current_waypoint_index = 0
+
 
 
     def angle_diff(self, a, b):
@@ -149,10 +156,6 @@ def main(args=None):
 
 class FirstOrderFilter:
     def __init__(self, alpha=0.3):
-        """
-        alpha: коэффициент "веса" нового значения (0 < alpha <= 1)
-               чем выше alpha — тем быстрее реакция на изменения
-        """
         self.alpha = alpha
         self.filtered_value = 0.0
 
@@ -162,3 +165,4 @@ class FirstOrderFilter:
     
 if __name__ == '__main__':
     main()
+    

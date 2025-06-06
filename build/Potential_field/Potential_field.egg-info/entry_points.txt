@@ -1,2 +1,4 @@
 [console_scripts]
+A_start = Potential_field.A_star:main
 Reguluator = Potential_field.Reguluator:main
+Trac = Potential_field.Traectory:main

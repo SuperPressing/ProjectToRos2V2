@@ -1,0 +1,37 @@
+[0.566s] Invoking command in '/home/neo/Documents/ros2_ws/src/Potential_field': PYTHONPATH=/home/neo/Documents/ros2_ws/build/Potential_field/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/Potential_field build --build-base /home/neo/Documents/ros2_ws/build/Potential_field/build install --record /home/neo/Documents/ros2_ws/build/Potential_field/install.log --single-version-externally-managed install_data
+[0.666s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[0.666s]   warnings.warn(msg)
+[0.736s] running egg_info
+[0.747s] writing ../../build/Potential_field/Potential_field.egg-info/PKG-INFO
+[0.748s] writing dependency_links to ../../build/Potential_field/Potential_field.egg-info/dependency_links.txt
+[0.748s] writing entry points to ../../build/Potential_field/Potential_field.egg-info/entry_points.txt
+[0.748s] writing requirements to ../../build/Potential_field/Potential_field.egg-info/requires.txt
+[0.748s] writing top-level names to ../../build/Potential_field/Potential_field.egg-info/top_level.txt
+[0.772s] reading manifest file '../../build/Potential_field/Potential_field.egg-info/SOURCES.txt'
+[0.772s] adding license file 'LICENSE'
+[0.773s] writing manifest file '../../build/Potential_field/Potential_field.egg-info/SOURCES.txt'
+[0.773s] running build
+[0.773s] running build_py
+[0.773s] copying Potential_field/Reguluator.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.773s] copying Potential_field/__init__.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.773s] copying Potential_field/Markov_solutions.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.773s] copying Potential_field/Traectory.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.773s] copying Potential_field/Instantaneous_center.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.773s] copying Potential_field/A_star.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.773s] copying Potential_field/Kinimatica.py -> /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field
+[0.774s] running install
+[0.776s] running install_lib
+[0.788s] copying /home/neo/Documents/ros2_ws/build/Potential_field/build/lib/Potential_field/Traectory.py -> /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field
+[0.789s] byte-compiling /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field/Traectory.py to Traectory.cpython-310.pyc
+[0.790s] running install_data
+[0.790s] copying resource/Potential_field -> /home/neo/Documents/ros2_ws/install/Potential_field/share/ament_index/resource_index/packages
+[0.790s] copying package.xml -> /home/neo/Documents/ros2_ws/install/Potential_field/share/Potential_field
+[0.790s] running install_egg_info
+[0.803s] removing '/home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field-0.0.0-py3.10.egg-info' (and everything under it)
+[0.803s] Copying ../../build/Potential_field/Potential_field.egg-info to /home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages/Potential_field-0.0.0-py3.10.egg-info
+[0.803s] running install_scripts
+[0.899s] Installing A_start script to /home/neo/Documents/ros2_ws/install/Potential_field/lib/Potential_field
+[0.899s] Installing Reguluator script to /home/neo/Documents/ros2_ws/install/Potential_field/lib/Potential_field
+[0.899s] Installing Trac script to /home/neo/Documents/ros2_ws/install/Potential_field/lib/Potential_field
+[0.899s] writing list of installed files to '/home/neo/Documents/ros2_ws/build/Potential_field/install.log'
+[0.916s] Invoked command in '/home/neo/Documents/ros2_ws/src/Potential_field' returned '0': PYTHONPATH=/home/neo/Documents/ros2_ws/build/Potential_field/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/Potential_field/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/Potential_field build --build-base /home/neo/Documents/ros2_ws/build/Potential_field/build install --record /home/neo/Documents/ros2_ws/build/Potential_field/install.log --single-version-externally-managed install_data

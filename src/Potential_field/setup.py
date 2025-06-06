@@ -21,6 +21,9 @@ setup(
     entry_points={
         'console_scripts': [
         'Reguluator = Potential_field.Reguluator:main',
+        'Trac = Potential_field.Traectory:main',
+        'A_start = Potential_field.A_star:main',
+        
         ],
     },
 )

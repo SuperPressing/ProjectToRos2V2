@@ -1,0 +1,25 @@
+[1.789s] Invoking command in '/home/neo/Documents/ros2_ws/src/map_test': PYTHONPATH=/home/neo/Documents/ros2_ws/build/map_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/map_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/map_test build --build-base /home/neo/Documents/ros2_ws/build/map_test/build install --record /home/neo/Documents/ros2_ws/build/map_test/install.log --single-version-externally-managed install_data
+[1.948s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[1.948s]   warnings.warn(msg)
+[2.049s] running egg_info
+[2.066s] writing ../../build/map_test/map_test.egg-info/PKG-INFO
+[2.067s] writing dependency_links to ../../build/map_test/map_test.egg-info/dependency_links.txt
+[2.067s] writing requirements to ../../build/map_test/map_test.egg-info/requires.txt
+[2.067s] writing top-level names to ../../build/map_test/map_test.egg-info/top_level.txt
+[2.101s] reading manifest file '../../build/map_test/map_test.egg-info/SOURCES.txt'
+[2.101s] adding license file 'LICENSE'
+[2.102s] writing manifest file '../../build/map_test/map_test.egg-info/SOURCES.txt'
+[2.102s] running build
+[2.102s] running build_py
+[2.102s] copying map_test/__init__.py -> /home/neo/Documents/ros2_ws/build/map_test/build/lib/map_test
+[2.102s] running install
+[2.106s] running install_lib
+[2.123s] running install_data
+[2.124s] copying resource/map_test -> /home/neo/Documents/ros2_ws/install/map_test/share/ament_index/resource_index/packages
+[2.124s] copying package.xml -> /home/neo/Documents/ros2_ws/install/map_test/share/map_test
+[2.124s] running install_egg_info
+[2.142s] removing '/home/neo/Documents/ros2_ws/install/map_test/lib/python3.10/site-packages/map_test-0.0.0-py3.10.egg-info' (and everything under it)
+[2.142s] Copying ../../build/map_test/map_test.egg-info to /home/neo/Documents/ros2_ws/install/map_test/lib/python3.10/site-packages/map_test-0.0.0-py3.10.egg-info
+[2.142s] running install_scripts
+[2.283s] writing list of installed files to '/home/neo/Documents/ros2_ws/build/map_test/install.log'
+[2.333s] Invoked command in '/home/neo/Documents/ros2_ws/src/map_test' returned '0': PYTHONPATH=/home/neo/Documents/ros2_ws/build/map_test/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/install/map_test/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/map_test build --build-base /home/neo/Documents/ros2_ws/build/map_test/build install --record /home/neo/Documents/ros2_ws/build/map_test/install.log --single-version-externally-managed install_data

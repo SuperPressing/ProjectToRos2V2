@@ -2,14 +2,14 @@ import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import Header
+from std_msgs.msg import Header, Float32MultiArray
 import numpy as np
 from PIL import Image
 import yaml
 import matplotlib.pyplot as plt
 import heapq
 import math
-
+import cv2
 # ——————— Функция построения дуги окружности ———————
 def build_circular_arc(p_start, p_end, center, R_pixels, num_points=20):
     """
@@ -49,11 +49,14 @@ def build_circular_arc(p_start, p_end, center, R_pixels, num_points=20):
 
 class AStarPlanner(Node):
 
-    def __init__(self, map_name, start_x, start_y, goal_x, goal_y):
+    def __init__(self, map_name, start_x, start_y, goal_x, goal_y, upscale_factor=10):
         super().__init__('a_star_planner_node')
         self.get_logger().info("A* Planner запущен")
+        self.upscale_factor = upscale_factor  # Коэффициент увеличения разрешения
 
         self.path_pub = self.create_publisher(Path, '/potential_path', 10)
+        # Добавляем публикатор для массива координат
+        self.array_pub = self.create_publisher(Float32MultiArray, '/path_coordinates', 10)
 
         self.map_name = map_name
         self.start_x = int(start_x)
@@ -90,11 +93,48 @@ class AStarPlanner(Node):
             # Расширяем препятствия на 0.2 метра
             self.grid = self.expand_obstacles(grid, distance_meters=0.2)
 
+            self.get_logger().info(f"Исходный размер: {self.width}x{self.height}")
+            grid = self.upscale_map(grid)
+            self.get_logger().info(f"Новый размер: {self.width}x{self.height}, разрешение: {self.resolution} м/пиксель")
+
+            # Пересчитываем координаты с новым разрешением
+            self.start_x = int(self.start_x * self.upscale_factor)
+            self.start_y = int(self.start_y * self.upscale_factor)
+            self.goal_x = int(self.goal_x * self.upscale_factor)
+            self.goal_y = int(self.goal_y * self.upscale_factor)
+            self.get_logger().info(f"Новые координаты: Старт({self.start_x}, {self.start_y}), Цель({self.goal_x}, {self.goal_y})")
+
+            # Расширяем препятствия
+            self.grid = self.expand_obstacles(grid, distance_meters=0.2)
             self.get_logger().info(f'Карта загружена и расширена: {self.width}x{self.height}')
+            
         except Exception as e:
             self.get_logger().error(f'Ошибка загрузки карты: {e}')
             raise
 
+    def upscale_map(self, grid):
+        """Увеличивает разрешение карты с интерполяцией"""
+        height, width = grid.shape
+        
+        # Используем билинейную интерполяцию для плавного увеличения
+        new_width = width * self.upscale_factor
+        new_height = height * self.upscale_factor
+        upscaled = cv2.resize(
+            grid.astype(np.float32), 
+            (new_width, new_height),
+            interpolation=cv2.INTER_LINEAR
+        )
+        
+        # Обновляем параметры карты
+        self.width = new_width
+        self.height = new_height
+        self.resolution /= self.upscale_factor
+        
+        # Преобразуем обратно в бинарную карту
+        binary_upscaled = np.zeros_like(upscaled, dtype=np.uint8)
+        binary_upscaled[upscaled > 0.5] = 1  # Пороговая обработка
+        
+        return binary_upscaled
     def plan_path(self):
         start = (self.start_x, self.start_y)
         goal = (self.goal_x, self.goal_y)
@@ -115,12 +155,15 @@ class AStarPlanner(Node):
             # Динамическое сглаживание с контролем отклонения
             R_min_start = 0.2  # Начальный минимальный радиус (в метрах)
             max_deviation_threshold = 0.5  # Максимальное отклонение (в метрах)
-            smoothed_path = self.smooth_path_with_dynamic_radius(path, R_min_start, max_deviation_threshold)
+            # smoothed_path = self.smooth_path_with_dynamic_radius(path, R_min_start, max_deviation_threshold)
+            smoothed_path = path
             output_file = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/trac.txt'
             with open(output_file, 'w') as f:
                 f.write(str(smoothed_path))
+                
             # Публикация и отображение
             self.publish_path(smoothed_path)
+            self.publish_path_array(smoothed_path)  # Публикация массива
             self.plot_paths_before_after(path, smoothed_path)
 
         else:
@@ -389,7 +432,8 @@ class AStarPlanner(Node):
         R_min = initial_R_min
         iteration = 0
 
-        while (iteration < max_iterations) and False:
+        # Исправлено условие цикла
+        while iteration < max_iterations:
             # Найти точки с резкими поворотами
             nonlinear_indices = self.find_strong_nonlinear_points(current_path, threshold_angle=20, step=3)
             simplified_indices = self.simplify_nonlinear_points(nonlinear_indices, min_gap=5)
@@ -401,7 +445,7 @@ class AStarPlanner(Node):
             self.get_logger().info(f'Итерация {iteration + 1}: найдено {len(simplified_indices)} точек перегиба')
 
             # Применить сглаживание с текущим радиусом
-            new_path = self.smooth_path_with_min_radius(current_path, simplified_indices)
+            new_path = self.smooth_path_with_min_radius(current_path, simplified_indices, R_min)
 
             # Проверить отклонение
             max_deviation = self.calculate_max_deviation(path, new_path)
@@ -436,6 +480,22 @@ class AStarPlanner(Node):
 
         self.path_pub.publish(msg)
         self.get_logger().info('Путь опубликован на /potential_path')
+
+    # Новая функция для публикации массива координат
+    def publish_path_array(self, path):
+        # Создаем массив: [x0, y0, x1, y1, ...]
+        data = []
+        for point in path:
+            # Преобразуем в мировые координаты (метры)
+            x_world = point[0] * self.resolution + self.origin[0]
+            y_world = point[1] * self.resolution + self.origin[1]
+            data.append(float(x_world))
+            data.append(float(y_world))
+
+        msg = Float32MultiArray()
+        msg.data = data
+        self.array_pub.publish(msg)
+        self.get_logger().info(f'Опубликован массив координат пути, всего {len(data)} чисел')
 
     def expand_obstacles(self, grid, distance_meters=0.2):
         """
@@ -481,14 +541,15 @@ class AStarPlanner(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    map_name = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/new_map'     # имя карты без расширения
-    start_x = 250             # стартовая X-координата (в пикселях)
-    start_y = 150            # стартовая Y-координата
-    goal_x = 50             # целевая X-координата
-    goal_y = 100             # целевая Y-координата
+    map_name = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/new_map'
+    start_x = 250
+    start_y = 150
+    goal_x = 50
+    goal_y = 100
+    upscale_factor = 1  # Увеличение разрешения в 2 раза
 
-    node = AStarPlanner(map_name, start_x, start_y, goal_x, goal_y)
-
+    node = AStarPlanner(map_name, start_x, start_y, goal_x, goal_y, upscale_factor)
+    
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
@@ -496,7 +557,6 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
