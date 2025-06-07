@@ -1,179 +1,255 @@
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Path
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from geometry_msgs.msg import PoseStamped, Point
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-import ast
+import builtin_interfaces.msg
+import matplotlib.pyplot as plt
+import os
+from datetime import datetime
+from builtin_interfaces.msg import Duration
+class TrajectoryPlanner(Node):
+    def __init__(self):
+        super().__init__('trajectory_planner')
+        
+        # Robot parameters
+        self.r = 0.05       # Wheel radius [m]
+        self.L = 0.35       # Wheelbase [m]
+        self.m = 5.0        # Mass [kg]
+        self.mu = 0.02      # Friction coefficient
+        self.I = 64.0       # Moment of inertia [kg·m²]
+        self.g = 9.81       # Gravity [m/s²]
+        self.v_max = 5.0    # Max speed [m/s]
+        self.a = 0.5        # Acceleration [m/s²]
+        self.dt = 0.1       # Time step [s]
 
-# === ПАРАМЕТРЫ РОБОТА ===
-r = 0.05       # радиус колеса, м
-L = 0.35       # колёсная база, м
-m = 5        # масса робота, кг
-mu = 0.02      # коэффициент трения качения
-I = 64         # момент инерции, кг·м²
-g = 9.81       # ускорение свободного падения, м/с²
+        # ROS2 communication
+        self.subscription = self.create_subscription(
+            Path,
+            '/potential_path',
+            self.path_callback,
+            10)
+        self.trajectory_pub = self.create_publisher(
+            JointTrajectory,
+            '/Trac',
+            10)
+        
+        # Create directory for plots
+        self.plot_dir = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field'
+        os.makedirs(self.plot_dir, exist_ok=True)
+        self.get_logger().info(f"Saving plots to: {self.plot_dir}")
 
-# === ВХОДНОЙ ПУТЬ (x, y) ===
-file_path = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/trac.txt'
-with open(file_path, 'r') as file:
-    data_str = file.read().strip()
+    def path_callback(self, msg):
+        # Convert Path to numpy array
+        path = []
+        for pose in msg.poses:
+            path.append([pose.pose.position.x, pose.pose.position.y])
+        path = np.array(path)
 
-# Преобразуем строку в список кортежей
-data_list = ast.literal_eval(data_str)
+        if len(path) < 2:
+            self.get_logger().warn("Received path with less than 2 points")
+            return
 
-# Преобразуем в numpy массив
-path = np.array(data_list, dtype=np.float64)
+        # Calculate path length
+        distances = np.sqrt(np.sum(np.diff(path, axis=0)**2, axis=1))
+        total_length = np.sum(distances)
+        
+        # Calculate time parameters
+        t_accel = self.v_max / self.a
+        s_accel = 0.5 * self.a * t_accel**2
 
-# === ПАРАМЕТРЫ ДВИЖЕНИЯ ===
-v_max = 5     # максимальная линейная скорость, м/с
-a = 0.5        # ускорение, м/с²
+        if 2 * s_accel > total_length:
+            t_accel = np.sqrt(total_length / self.a)
+            t_constant = 0.0
+            t_total = 2 * t_accel
+        else:
+            s_constant = total_length - 2 * s_accel
+            t_constant = s_constant / self.v_max
+            t_total = 2 * t_accel + t_constant
 
-# === РАСЧЁТ ДЛИНЫ ПУТИ ===
-distances = np.sqrt(np.sum(np.diff(path, axis=0)**2, axis=1))
-total_length = np.sum(distances)
+        # Generate time array
+        t_eval = np.arange(0, t_total, self.dt)
+        
+        # Generate velocity profile
+        v_profile = []
+        for t in t_eval:
+            if t <= t_accel:
+                v = self.a * t
+            elif t <= t_accel + t_constant:
+                v = self.v_max
+            else:
+                v = self.a * (t_total - t)
+            v_profile.append(v)
+        
+        # Calculate acceleration profile
+        a_profile = np.gradient(v_profile, self.dt)
+        
+        # Interpolate path
+        cumulative_distances = np.insert(np.cumsum(distances), 0, 0)
+        x_path = interp1d(cumulative_distances, path[:, 0], kind='linear', fill_value="extrapolate")
+        y_path = interp1d(cumulative_distances, path[:, 1], kind='linear', fill_value="extrapolate")
+        
+        # Calculate trajectory
+        s_profile = np.cumsum(v_profile) * self.dt
+        trajectory_x = x_path(s_profile)
+        trajectory_y = y_path(s_profile)
+        
+        # Calculate orientation and angular velocity
+        dx = np.gradient(trajectory_x, self.dt)
+        dy = np.gradient(trajectory_y, self.dt)
+        theta = np.arctan2(dy, dx)
+        omega_profile = np.gradient(theta, self.dt)
+        
+        # Wheel kinematics
+        def inverse_kinematics(v, omega):
+            omega_L = (v - (self.L / 2) * omega) / self.r
+            omega_R = (v + (self.L / 2) * omega) / self.r
+            return omega_L, omega_R
 
-# === РАСЧЁТ ВРЕМЕННЫХ ФАЗ ===
-t_accel = v_max / a
-s_accel = 0.5 * a * t_accel**2
+        omega_L_profile, omega_R_profile = [], []
+        for v, omega in zip(v_profile, omega_profile):
+            wl, wr = inverse_kinematics(v, omega)
+            omega_L_profile.append(wl)
+            omega_R_profile.append(wr)
+        
+        # Dynamics
+        F_traction = self.m * a_profile + self.mu * self.m * self.g
+        M_rotation = self.I * np.gradient(omega_profile, self.dt) + self.mu * self.m * self.g * self.L / 2
 
-if 2 * s_accel > total_length:
-    # Треугольный профиль (не достигаем v_max)
-    t_accel = np.sqrt(total_length / a)
-    t_constant = 0
-    t_total = 2 * t_accel
-else:
-    # Трапециидальный профиль
-    s_constant = total_length - 2 * s_accel
-    t_constant = s_constant / v_max
-    t_total = 2 * t_accel + t_constant
+        # Create trajectory message
+        traj_msg = JointTrajectory()
+        traj_msg.header.stamp = self.get_clock().now().to_msg()
+        current_time = self.get_clock().now()
+        current_time = current_time.nanoseconds / 1e9
+        traj_msg.header.frame_id = "odom"
+        traj_msg.joint_names = ['left_wheel_joint', 'right_wheel_joint']
+        
+        for i in range(len(t_eval)):
+            point = JointTrajectoryPoint()
+            point.velocities = [
+                float(v_profile[i]),
+                float(omega_profile[i]),
+            ]
+            point.positions = [
+                float(trajectory_x[i]),  # координата x
+                float(trajectory_y[i]),  # координата y
+                float(theta[i])       # угол ориентации (опционально)
+            ]
+            # Calculate time duration
+            sec = int(t_eval[i]+current_time)  # 2
+            nanosec = int((t_eval[i] - sec+current_time) * 1e9)  # 0.75 * 1e9 = 750000000
+            # nanosec = int((t_eval[i] - sec) * 1e9)
+            point.time_from_start = builtin_interfaces.msg.Duration(sec=sec,nanosec = nanosec )
+            traj_msg.points.append(point)
+        
+        # Publish trajectory
+        self.trajectory_pub.publish(traj_msg)
+        self.get_logger().info(f"Published trajectory with {len(traj_msg.points)} points")
+        
+        # Generate and save plots
+        self.generate_plots(
+            path, 
+            trajectory_x, 
+            trajectory_y, 
+            theta, 
+            t_eval, 
+            v_profile, 
+            a_profile,
+            omega_L_profile, 
+            omega_R_profile, 
+            F_traction
+        )
 
-# === ГЕНЕРАЦИЯ ВРЕМЕННОГО ШАГА ===
-dt = 0.1
-t_eval = np.arange(0, t_total, dt)
+    def generate_plots(self, path, trajectory_x, trajectory_y, theta, t_eval, 
+                       v_profile, a_profile, omega_L_profile, omega_R_profile, F_traction):
+        # Create figure with subplots
+        fig, axs = plt.subplots(3, 2, figsize=(14, 12))
+        fig.suptitle('Trajectory Analysis', fontsize=16)
+        
+        # 1. Trajectory plot
+        axs[0, 0].plot(path[:, 0], path[:, 1], 'ro-', label='Input Path')
+        axs[0, 0].plot(trajectory_x, trajectory_y, 'b-', label='Actual Trajectory')
+        axs[0, 0].set_title("Robot Trajectory")
+        axs[0, 0].set_xlabel("X [m]")
+        axs[0, 0].set_ylabel("Y [m]")
+        axs[0, 0].grid(True)
+        axs[0, 0].legend()
+        axs[0, 0].axis('equal')
+        
+        # Add orientation arrows
+        step = max(1, len(trajectory_x) // 10)
+        arrow_length = 0.3
+        for i in range(0, len(trajectory_x), step):
+            x = trajectory_x[i]
+            y = trajectory_y[i]
+            angle = theta[i]
+            dx_arrow = arrow_length * np.cos(angle)
+            dy_arrow = arrow_length * np.sin(angle)
+            axs[0, 0].arrow(x, y, dx_arrow, dy_arrow,
+                            head_width=0.05, length_includes_head=True, color='blue')
 
-# === ГЕНЕРАЦИЯ ПРОФИЛЯ СКОРОСТИ (трапециидальный) ===
-v_profile = []
-for t in t_eval:
-    if t <= t_accel:
-        v = a * t
-    elif t <= t_accel + t_constant:
-        v = v_max
-    else:
-        v = a * (t_total - t)
-    v_profile.append(v)
+        # 2. Velocity profile
+        axs[0, 1].plot(t_eval, v_profile, 'g-', label='Linear velocity')
+        axs[0, 1].set_title("Linear Velocity")
+        axs[0, 1].set_xlabel("Time [s]")
+        axs[0, 1].set_ylabel("Velocity [m/s]")
+        axs[0, 1].grid(True)
+        axs[0, 1].legend()
 
-# === РАСЧЁТ ЛИНЕЙНОГО УСКОРЕНИЯ ===
-a_profile = np.gradient(v_profile, dt)
+        # 3. Acceleration profile
+        axs[1, 0].plot(t_eval, a_profile, 'm-', label='Linear acceleration')
+        axs[1, 0].set_title("Linear Acceleration")
+        axs[1, 0].set_xlabel("Time [s]")
+        axs[1, 0].set_ylabel("Acceleration [m/s²]")
+        axs[1, 0].grid(True)
+        axs[1, 0].legend()
 
-# === ИНТЕРПОЛЯЦИЯ ПУТИ ПО ДЛИНЕ ДУГИ ===
-cumulative_distances = np.insert(np.cumsum(distances), 0, 0)
+        # 4. Orientation
+        axs[1, 1].plot(t_eval, np.degrees(theta), 'c-', label='Robot heading')
+        axs[1, 1].set_title("Robot Orientation")
+        axs[1, 1].set_xlabel("Time [s]")
+        axs[1, 1].set_ylabel("Heading [deg]")
+        axs[1, 1].grid(True)
+        axs[1, 1].legend()
 
-x_path = interp1d(cumulative_distances, path[:, 0], kind='linear', fill_value="extrapolate")
-y_path = interp1d(cumulative_distances, path[:, 1], kind='linear', fill_value="extrapolate")
+        # 5. Wheel velocities
+        axs[2, 0].plot(t_eval, omega_L_profile, 'b', label='Left wheel')
+        axs[2, 0].plot(t_eval, omega_R_profile, 'r', label='Right wheel')
+        axs[2, 0].set_title("Wheel Angular Velocities")
+        axs[2, 0].set_xlabel("Time [s]")
+        axs[2, 0].set_ylabel("Angular velocity [rad/s]")
+        axs[2, 0].grid(True)
+        axs[2, 0].legend()
 
-# === РАСЧЁТ ТРАЕКТОРИИ ПО ПРОЙДЕННОМУ ПУТИ ===
-s_profile = np.cumsum(v_profile) * dt
-trajectory_x = []
-trajectory_y = []
+        # 6. Traction force
+        axs[2, 1].plot(t_eval, F_traction, 'purple', label='Traction force')
+        axs[2, 1].set_title("Traction Force")
+        axs[2, 1].set_xlabel("Time [s]")
+        axs[2, 1].set_ylabel("Force [N]")
+        axs[2, 1].grid(True)
+        axs[2, 1].legend()
 
-for s in s_profile:
-    trajectory_x.append(x_path(s))
-    trajectory_y.append(y_path(s))
+        # Save figure
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        plot_path = os.path.join(self.plot_dir, f'trajectory_analysis_{timestamp}.png')
+        plt.tight_layout()
+        plt.savefig(plot_path)
+        plt.close(fig)  # Close figure to free memory
+        
+        self.get_logger().info(f"Saved trajectory plots to: {plot_path}")
 
-# === РАСЧЁТ НАПРАВЛЕНИЯ РОБОТА И УГЛОВОЙ СКОРОСТИ ===
-dx = np.gradient(trajectory_x, dt)
-dy = np.gradient(trajectory_y, dt)
-theta = np.arctan2(dy, dx)
-omega_profile = np.gradient(theta, dt)
+def main(args=None):
+    rclpy.init(args=args)
+    node = TrajectoryPlanner()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
-# === КИНЕМАТИКА → УГЛОВЫЕ СКОРОСТИ КОЛЁС ===
-def inverse_kinematics(v, omega):
-    omega_L = (v - (L / 2) * omega) / r
-    omega_R = (v + (L / 2) * omega) / r
-    return omega_L, omega_R
-
-omega_L_profile = []
-omega_R_profile = []
-
-for v, omega in zip(v_profile, omega_profile):
-    wl, wr = inverse_kinematics(v, omega)
-    omega_L_profile.append(wl)
-    omega_R_profile.append(wr)
-
-# === ДИНАМИКА → СИЛЫ И МОМЕНТЫ ===
-F_traction = m * a_profile + mu * m * g
-M_rotation = I * np.gradient(omega_profile, dt) + mu * m * g * L / 2
-
-# === ВИЗУАЛИЗАЦИЯ ===
-fig, axs = plt.subplots(3, 2, figsize=(14, 12))
-
-# 1. Траектория
-axs[0, 0].plot(path[:, 0], path[:, 1], 'ro-', label='Путь')
-axs[0, 0].plot(trajectory_x, trajectory_y, 'b--', label='Траектория')
-axs[0, 0].set_title("Траектория движения")
-axs[0, 0].grid(True)
-axs[0, 0].legend()
-axs[0, 0].axis('equal')
-
-# Добавляем стрелочки ориентации
-step = max(1, len(trajectory_x) // 20)
-arrow_length = 0.3
-for i in range(0, len(trajectory_x), step):
-    x = trajectory_x[i]
-    y = trajectory_y[i]
-    angle = theta[i]
-    dx_arrow = arrow_length * np.cos(angle)
-    dy_arrow = arrow_length * np.sin(angle)
-    axs[0, 0].arrow(x, y, dx_arrow, dy_arrow,
-                    head_width=0.05, length_includes_head=True, color='blue')
-
-# 2. Скорость
-axs[0, 1].plot(t_eval, v_profile, 'g-', label='v(t)')
-axs[0, 1].set_title("Линейная скорость")
-axs[0, 1].grid(True)
-axs[0, 1].legend()
-
-# 3. Ускорение
-axs[1, 0].plot(t_eval, a_profile, 'm-', label='a(t)')
-axs[1, 0].set_title("Линейное ускорение")
-axs[1, 0].grid(True)
-axs[1, 0].legend()
-
-# 4. Ориентация робота
-axs[1, 1].plot(t_eval, theta, 'c-', label='θ(t)')
-axs[1, 1].set_title("Ориентация робота в пространстве (радианы)")
-axs[1, 1].grid(True)
-axs[1, 1].legend()
-
-# 5. Угловые скорости колёс
-axs[2, 0].plot(t_eval, omega_L_profile, 'b', label='ω_L')
-axs[2, 0].plot(t_eval, omega_R_profile, 'r', label='ω_R')
-axs[2, 0].set_title("Угловые скорости колёс")
-axs[2, 0].grid(True)
-axs[2, 0].legend()
-
-# 6. Сила тяги
-axs[2, 1].plot(t_eval, F_traction, 'purple', label='F_тяги(t)')
-axs[2, 1].set_title("Необходимая сила тяги")
-axs[2, 1].grid(True)
-axs[2, 1].legend()
-
-trajectory_dict = []
-for i in range(len(t_eval)):
-    point = {
-        'x': float(trajectory_x[i]),
-        'y': float(trajectory_y[i]),
-        'theta': float(theta[i]),
-        't': float(t_eval[i]),
-        'v': float(v_profile[i]),
-        'w': float(omega_profile[i])
-    }
-    trajectory_dict.append(point)
-
-# === СОХРАНЕНИЕ В ФАЙЛ ===
-output_file = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/trajectory_output.txt'
-with open(output_file, 'w') as f:
-    f.write(str(trajectory_dict))
-
-print(f"Траектория сохранена в файл: {output_file}")
-
-plt.tight_layout()
-plt.show()
+if __name__ == '__main__':
+    main()

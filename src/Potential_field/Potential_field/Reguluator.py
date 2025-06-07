@@ -63,7 +63,7 @@ class TrajectoryFollower(Node):
     def path_callback(self, msg):
         """Обработчик сообщений с траекторией"""
         self.get_logger().info(f"Получена траектория с {len(msg.points)} точками")
-        
+        self.current_waypoint_index = 0
         # Очищаем предыдущие данные
         self.time_data.clear()
         self.x_positions.clear()
@@ -95,14 +95,14 @@ class TrajectoryFollower(Node):
         self.get_logger().info("Обработка данных траектории...")
         
         # Пример вывода данных
-        for i in range(len(self.time_data)):
-            self.get_logger().info(
-                f"Точка {i}: "
-                f"Время = {self.time_data[i]:.2f}s, "
-                f"X = {self.x_positions[i]:.2f}m, "
-                f"Y = {self.y_positions[i]:.2f}m, "
-                f"Ориентация = {self.orientations[i]:.2f}rad"
-            )
+        # for i in range(len(self.time_data)):
+            # self.get_logger().info(
+            #     f"Точка {i}: "
+            #     f"Время = {self.time_data[i]:.2f}s, "
+            #     f"X = {self.x_positions[i]:.2f}m, "
+            #     f"Y = {self.y_positions[i]:.2f}m, "
+            #     f"Ориентация = {self.orientations[i]:.2f}rad"
+            # )
     def map_callback(self, msg):
         """Получаем карту"""
         self.map_data = list(msg.data)
@@ -133,14 +133,15 @@ class TrajectoryFollower(Node):
     def control_loop(self):
         if not self.map_info:
            return
+        cmd = Twist()
         if self.current_waypoint_index >= len(self.x_positions):
             self.current_waypoint_index = 0
             self.time_data.clear()
             self.x_positions.clear()
             self.y_positions.clear()
             self.orientations.clear()
-            cmd.linear.x = 0
-            cmd.angular.z = 0
+            cmd.linear.x = 0.0
+            cmd.angular.z = 0.0
             self.cmd_pub.publish(cmd)
             self.get_logger().info("Траектория завершена.")
             
@@ -182,7 +183,7 @@ class TrajectoryFollower(Node):
         # Пропускаем через фильтр для плавности
         v_filtered = self.filter_v.update(v_control)
         w_filtered = self.filter_w.update(w_control)
-        cmd = Twist()
+        
         cmd.linear.x = w_filtered
         cmd.angular.z = -v_filtered
         self.current_waypoint_index += 1

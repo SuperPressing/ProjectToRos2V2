@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import heapq
 import math
 import cv2
+from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseStamped
 # ——————— Функция построения дуги окружности ———————
 def build_circular_arc(p_start, p_end, center, R_pixels, num_points=20):
     """
@@ -51,23 +53,31 @@ class AStarPlanner(Node):
 
     def __init__(self, map_name, start_x, start_y, goal_x, goal_y, upscale_factor=10):
         super().__init__('a_star_planner_node')
+        self.map_name = map_name
         self.get_logger().info("A* Planner запущен")
         self.upscale_factor = upscale_factor  # Коэффициент увеличения разрешения
-
-        self.path_pub = self.create_publisher(Path, '/potential_path', 10)
-        # Добавляем публикатор для массива координат
-        self.array_pub = self.create_publisher(Float32MultiArray, '/path_coordinates', 10)
-
         self.map_name = map_name
         self.start_x = int(start_x)
         self.start_y = int(start_y)
         self.goal_x = int(goal_x)
         self.goal_y = int(goal_y)
-
+        self.load_map()
+        self.path_pub = self.create_publisher(Path, '/potential_path', 10)
+        # Добавляем публикатор для массива координат
+        self.array_pub = self.create_publisher(Float32MultiArray, '/path_coordinates', 10)
+        # Подписчики на стартовую и целевую точки
+        self.start_sub = self.create_subscription(Path, '/start_pose', self.start_callback, 10)
+        
         self.get_logger().info(f'Загрузка карты из {self.map_name}')
         self.get_logger().info(f'Старт: ({self.start_x}, {self.start_y}), Цель: ({self.goal_x}, {self.goal_y})')
+        self.plan_path()# заменить на входные значения
 
-        self.load_map()
+ 
+
+    def start_callback(self, msg):
+        self.get_logger().info('Получен старт')
+        # self.start_point = self.world_to_pixel(msg.pose.position.x, msg.pose.position.y)
+        self.start_received = True
         self.plan_path()
 
     def load_map(self):
@@ -160,11 +170,22 @@ class AStarPlanner(Node):
             output_file = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/trac.txt'
             with open(output_file, 'w') as f:
                 f.write(str(smoothed_path))
-                
+            print(smoothed_path)
             # Публикация и отображение
+            msg = Path()
+            msg.header.stamp = self.get_clock().now().to_msg()  # Текущее время
+            msg.header.frame_id = "map"  # Система координат (например, "map" или "odom")
+            for x, y in smoothed_path:
+                pose = PoseStamped()
+                pose.header.frame_id = "map"
+                # Преобразование пиксельных координат в мировые (метры)
+                pose.pose.position.x = self.origin[0]
+                pose.pose.position.y = self.origin[1]
+                pose.pose.orientation.w = 1.0  # Ориентация (по умолчанию)
+                msg.poses.append(pose)
             self.publish_path(smoothed_path)
             self.publish_path_array(smoothed_path)  # Публикация массива
-            self.plot_paths_before_after(path, smoothed_path)
+            # self.plot_paths_before_after(path, smoothed_path)
 
         else:
             self.get_logger().error('Путь не найден!')
@@ -473,8 +494,8 @@ class AStarPlanner(Node):
             pose = PoseStamped()
             pose.header = Header()
             pose.header.frame_id = 'map'
-            pose.pose.position.x = x * self.resolution + self.origin[0]
-            pose.pose.position.y = y * self.resolution + self.origin[1]
+            pose.pose.position.x = float(x)
+            pose.pose.position.y = float(y)
             pose.pose.orientation.w = 1.0
             msg.poses.append(pose)
 

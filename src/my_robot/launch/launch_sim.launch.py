@@ -128,6 +128,24 @@ def generate_launch_description():
         name='map_editing',
         output='screen'
     )
+    Trac = Node(
+        package='Potential_field',
+        executable='Trac',
+        name='map_editing',
+        output='screen'
+    )
+    Reguluator = Node(
+        package='Potential_field',
+        executable='Reguluator',
+        name='map_editing',
+        output='screen'
+    )
+    Mark = Node(
+        package='Potential_field',
+        executable='Mark',
+        name='map_editing',
+        output='screen'
+    )
     # Launch them all!
     return LaunchDescription([
         rsp,
@@ -139,6 +157,9 @@ def generate_launch_description():
         delayed_slam_toolbox,
         map_talker,
         map_read,
+        Trac,
+        Mark,
+        Reguluator,
         #dlayed_diff_drive_spawner,
         #delayed_joint_broad_spawner,
     ])

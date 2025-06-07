@@ -15,6 +15,8 @@ Potential_field/Kinimatica.py
 Potential_field/Markov_solutions.py
 Potential_field/Reguluator.py
 Potential_field/Traectory.py
+Potential_field/Update_map (copy).py
+Potential_field/Update_map.py
 Potential_field/__init__.py
 resource/Potential_field
 test/test_copyright.py

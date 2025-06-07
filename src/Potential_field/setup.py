@@ -23,6 +23,7 @@ setup(
         'Reguluator = Potential_field.Reguluator:main',
         'Trac = Potential_field.Traectory:main',
         'A_start = Potential_field.A_star:main',
+        'Mark = Potential_field.Markov_solutions:main',
         
         ],
     },

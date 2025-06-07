@@ -1,0 +1,33 @@
+/home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+  warnings.warn(msg)
+running egg_info
+writing ../build/Potential_field/Potential_field.egg-info/PKG-INFO
+writing dependency_links to ../build/Potential_field/Potential_field.egg-info/dependency_links.txt
+writing entry points to ../build/Potential_field/Potential_field.egg-info/entry_points.txt
+writing requirements to ../build/Potential_field/Potential_field.egg-info/requires.txt
+writing top-level names to ../build/Potential_field/Potential_field.egg-info/top_level.txt
+reading manifest file '../build/Potential_field/Potential_field.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../build/Potential_field/Potential_field.egg-info/SOURCES.txt'
+running build
+running build_py
+copying Potential_field/Reguluator.py -> /home/neo/Documents/ros2_ws/src/build/Potential_field/build/lib/Potential_field
+copying Potential_field/__init__.py -> /home/neo/Documents/ros2_ws/src/build/Potential_field/build/lib/Potential_field
+copying Potential_field/Markov_solutions.py -> /home/neo/Documents/ros2_ws/src/build/Potential_field/build/lib/Potential_field
+copying Potential_field/Traectory.py -> /home/neo/Documents/ros2_ws/src/build/Potential_field/build/lib/Potential_field
+copying Potential_field/Instantaneous_center.py -> /home/neo/Documents/ros2_ws/src/build/Potential_field/build/lib/Potential_field
+copying Potential_field/A_star.py -> /home/neo/Documents/ros2_ws/src/build/Potential_field/build/lib/Potential_field
+copying Potential_field/Kinimatica.py -> /home/neo/Documents/ros2_ws/src/build/Potential_field/build/lib/Potential_field
+running install
+running install_lib
+running install_data
+copying resource/Potential_field -> /home/neo/Documents/ros2_ws/src/install/Potential_field/share/ament_index/resource_index/packages
+copying package.xml -> /home/neo/Documents/ros2_ws/src/install/Potential_field/share/Potential_field
+running install_egg_info
+removing '/home/neo/Documents/ros2_ws/src/install/Potential_field/lib/python3.10/site-packages/Potential_field-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../build/Potential_field/Potential_field.egg-info to /home/neo/Documents/ros2_ws/src/install/Potential_field/lib/python3.10/site-packages/Potential_field-0.0.0-py3.10.egg-info
+running install_scripts
+Installing A_start script to /home/neo/Documents/ros2_ws/src/install/Potential_field/lib/Potential_field
+Installing Reguluator script to /home/neo/Documents/ros2_ws/src/install/Potential_field/lib/Potential_field
+Installing Trac script to /home/neo/Documents/ros2_ws/src/install/Potential_field/lib/Potential_field
+writing list of installed files to '/home/neo/Documents/ros2_ws/src/build/Potential_field/install.log'
