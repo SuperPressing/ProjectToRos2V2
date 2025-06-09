@@ -1,0 +1,28 @@
+[1.616s] Invoking command in '/home/neo/Documents/ros2_ws/src/my_package': PYTHONPATH=/home/neo/Documents/ros2_ws/src/build/my_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/src/install/my_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/my_package build --build-base /home/neo/Documents/ros2_ws/src/build/my_package/build install --record /home/neo/Documents/ros2_ws/src/build/my_package/install.log --single-version-externally-managed install_data
+[1.780s] /home/neo/.local/lib/python3.10/site-packages/setuptools/_distutils/dist.py:289: UserWarning: Unknown distribution option: 'tests_require'
+[1.780s]   warnings.warn(msg)
+[1.869s] running egg_info
+[1.884s] writing ../build/my_package/my_package.egg-info/PKG-INFO
+[1.885s] writing dependency_links to ../build/my_package/my_package.egg-info/dependency_links.txt
+[1.885s] writing entry points to ../build/my_package/my_package.egg-info/entry_points.txt
+[1.885s] writing requirements to ../build/my_package/my_package.egg-info/requires.txt
+[1.885s] writing top-level names to ../build/my_package/my_package.egg-info/top_level.txt
+[1.915s] reading manifest file '../build/my_package/my_package.egg-info/SOURCES.txt'
+[1.916s] adding license file 'LICENSE'
+[1.916s] writing manifest file '../build/my_package/my_package.egg-info/SOURCES.txt'
+[1.916s] running build
+[1.917s] running build_py
+[1.917s] copying my_package/my_node.py -> /home/neo/Documents/ros2_ws/src/build/my_package/build/lib/my_package
+[1.918s] copying my_package/__init__.py -> /home/neo/Documents/ros2_ws/src/build/my_package/build/lib/my_package
+[1.918s] running install
+[1.923s] running install_lib
+[1.956s] running install_data
+[1.957s] copying resource/my_package -> /home/neo/Documents/ros2_ws/src/install/my_package/share/ament_index/resource_index/packages
+[1.957s] copying package.xml -> /home/neo/Documents/ros2_ws/src/install/my_package/share/my_package
+[1.957s] running install_egg_info
+[1.974s] removing '/home/neo/Documents/ros2_ws/src/install/my_package/lib/python3.10/site-packages/my_package-0.0.0-py3.10.egg-info' (and everything under it)
+[1.974s] Copying ../build/my_package/my_package.egg-info to /home/neo/Documents/ros2_ws/src/install/my_package/lib/python3.10/site-packages/my_package-0.0.0-py3.10.egg-info
+[1.975s] running install_scripts
+[2.085s] Installing my_node script to /home/neo/Documents/ros2_ws/src/install/my_package/lib/my_package
+[2.086s] writing list of installed files to '/home/neo/Documents/ros2_ws/src/build/my_package/install.log'
+[2.104s] Invoked command in '/home/neo/Documents/ros2_ws/src/my_package' returned '0': PYTHONPATH=/home/neo/Documents/ros2_ws/src/build/my_package/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/neo/Documents/ros2_ws/src/install/my_package/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../build/my_package build --build-base /home/neo/Documents/ros2_ws/src/build/my_package/build install --record /home/neo/Documents/ros2_ws/src/build/my_package/install.log --single-version-externally-managed install_data

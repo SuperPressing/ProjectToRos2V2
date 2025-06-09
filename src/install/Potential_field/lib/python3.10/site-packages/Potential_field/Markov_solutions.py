@@ -28,7 +28,7 @@ class MDPReplanner(Node):
         os.makedirs(self.output_dir, exist_ok=True)
         self.original_path_file = os.path.join(self.output_dir, 'original_path.csv')
         self.replanned_path_file = os.path.join(self.output_dir, 'replanned_path.csv')
-        self.map_image_file = os.path.join(self.output_dir, 'map.png')
+        self.map_image_file = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/update_map.pgm'
         
         # State variables
         self.original_path = []
@@ -56,7 +56,7 @@ class MDPReplanner(Node):
 
     def load_map(self):
         """Load the static map from file"""
-        map_path = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/new_map'
+        map_path = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/update_map.pgm'
         try:
             with open(f'{map_path}.yaml', 'r') as f:
                 map_metadata = yaml.safe_load(f)
