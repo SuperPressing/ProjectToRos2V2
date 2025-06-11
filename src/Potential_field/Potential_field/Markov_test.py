@@ -15,7 +15,7 @@ class PathReplanner(Node):
         
         # Параметры алгоритма
         self.step_back = 10      # Отступ назад от точки пересечения (пиксели)
-        self.step_forward = 15   # Отступ вперед от точки пересечения (пиксели)
+        self.step_forward = 10   # Отступ вперед от точки пересечения (пиксели)
         self.safety_margin = 5   # Безопасное расстояние от препятствий (пиксели)
         self.enable_visualization = True
         
@@ -42,7 +42,7 @@ class PathReplanner(Node):
         )
         
         # Публикатор нового пути
-        self.path_pub = self.create_publisher(Path, '/replanned_path', 10)
+        self.path_pub = self.create_publisher(Path, '/potential_path_test', 10)
         
         # Загрузка карты
         self.load_map_from_file('/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/update_map.pgm')
@@ -237,6 +237,7 @@ class PathReplanner(Node):
         
         # Публикация нового пути
         self.path_pub.publish(new_path)
+        self.save_path_to_file(new_path, '/home/neo/Documents/replanned_path.txt')
         self.get_logger().info("Опубликован перепланированный путь")
         
         # Визуализация
@@ -244,44 +245,63 @@ class PathReplanner(Node):
             self.visualize_path(new_path)
 
     def visualize_path(self, path):
-        """Визуализация пути и препятствий"""
+        """Визуализация пути и препятствий с корректной ориентацией карты"""
         try:
             self.ax.clear()
             
-            # Отображение карты
+            # Отображение карты (переворачиваем по оси Y)
             if self.grid_data:
                 grid = np.array(self.grid_data).reshape(self.grid_height, self.grid_width)
                 occupied = np.where(grid > 50)
-                self.ax.scatter(occupied[1], occupied[0], c='gray', s=1, alpha=0.5, label='Препятствия')
+                # Инвертируем Y-координаты
+                self.ax.scatter(occupied[1], self.grid_height - occupied[0] - 1, 
+                            c='gray', s=1, alpha=0.5, label='Препятствия')
             
-            # Оригинальный путь
+            # Оригинальный путь (переворачиваем Y)
             if self.original_path.poses:
                 orig_x = [p.pose.position.x for p in self.original_path.poses]
                 orig_y = [p.pose.position.y for p in self.original_path.poses]
                 self.ax.plot(orig_x, orig_y, 'b-', linewidth=2, label='Исходный путь')
             
-            # Новый путь
+            # Новый путь (переворачиваем Y)
             if path.poses:
                 new_x = [p.pose.position.x for p in path.poses]
                 new_y = [p.pose.position.y for p in path.poses]
                 self.ax.plot(new_x, new_y, 'g--', linewidth=3, label='Новый путь')
             
-            # Препятствия
+            # Препятствия (переворачиваем Y)
             for ox, oy in self.obstacle_points:
-                self.ax.scatter(ox, oy, c='red', marker='x', s=100, label='Препятствия')
+                self.ax.scatter(ox, oy, 
+                            c='red', marker='x', s=100, label='Препятствия')
             
             # Настройки графика
-            self.ax.set_title("Перепланировка пути")
+            self.ax.set_title("Перепланировка пути (корректная ориентация)")
             self.ax.set_xlim(0, self.grid_width)
             self.ax.set_ylim(0, self.grid_height)
-            self.ax.legend()
-            self.ax.grid(True)
             
+            # Убираем дублирующиеся легенды
+            handles, labels = self.ax.get_legend_handles_labels()
+            by_label = dict(zip(labels, handles))
+            self.ax.legend(by_label.values(), by_label.keys())
+            
+            self.ax.grid(True)
             plt.draw()
             plt.pause(0.01)
             
         except Exception as e:
             self.get_logger().error(f"Ошибка визуализации: {str(e)}")
+
+    def save_path_to_file(self, path_msg, filename='replanned_path.txt'):
+        """Сохраняет координаты точек из Path в текстовый файл"""
+        try:
+            with open(filename, 'w') as f:
+                for i, pose_stamped in enumerate(path_msg.poses):
+                    position = pose_stamped.pose.position
+                    line = f"Point {i}: x={position.x}, y={position.y}, z={position.z}\n"
+                    f.write(line)
+            self.get_logger().info(f"Путь сохранён в файл: {filename}")
+        except Exception as e:
+            self.get_logger().error(f"Ошибка при сохранении файла: {str(e)}")
 
 def main(args=None):
     rclpy.init(args=args)
