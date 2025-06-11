@@ -146,6 +146,18 @@ def generate_launch_description():
         name='map_editing',
         output='screen'
     )
+    Find = Node(
+        package='Potential_field',
+        executable='Find',
+        name='map_editing',
+        output='screen'
+    )
+    Update_map = Node(
+        package='Potential_field',
+        executable='Update_map',
+        name='map_editing',
+        output='screen'
+    )
     # Launch them all!
     return LaunchDescription([
         rsp,
@@ -160,6 +172,8 @@ def generate_launch_description():
         Trac,
         Mark,
         Reguluator,
+        Find,
+        Update_map,
         #dlayed_diff_drive_spawner,
         #delayed_joint_broad_spawner,
     ])

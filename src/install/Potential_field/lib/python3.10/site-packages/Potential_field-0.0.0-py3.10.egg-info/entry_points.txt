@@ -1,5 +1,7 @@
 [console_scripts]
 A_start = Potential_field.A_star:main
+Find = Potential_field.Finding_obstacles:main
 Mark = Potential_field.Markov_solutions:main
 Reguluator = Potential_field.Reguluator:main
 Trac = Potential_field.Traectory:main
+Update_map = Potential_field.Update_map:main

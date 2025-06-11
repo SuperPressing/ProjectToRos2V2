@@ -10,9 +10,11 @@ setup.py
 ../build/Potential_field/Potential_field.egg-info/top_level.txt
 ../build/Potential_field/Potential_field.egg-info/zip-safe
 Potential_field/A_star.py
+Potential_field/Finding_obstacles.py
 Potential_field/Instantaneous_center.py
 Potential_field/Kinimatica.py
 Potential_field/Markov_solutions.py
+Potential_field/Markov_test.py
 Potential_field/Reguluator.py
 Potential_field/Traectory.py
 Potential_field/Update_map (copy).py

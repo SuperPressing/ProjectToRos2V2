@@ -24,7 +24,8 @@ setup(
         'Trac = Potential_field.Traectory:main',
         'A_start = Potential_field.A_star:main',
         'Mark = Potential_field.Markov_solutions:main',
-        
+        'Find = Potential_field.Finding_obstacles:main',
+        'Update_map = Potential_field.Update_map:main',
         ],
     },
 )
