@@ -185,7 +185,7 @@ class AStarPlanner(Node):
                 msg.poses.append(pose)
             self.publish_path(smoothed_path)
             self.publish_path_array(smoothed_path)  # Публикация массива
-            # self.plot_paths_before_after(path, smoothed_path)
+            self.plot_paths_before_after(path, smoothed_path)
 
         else:
             self.get_logger().error('Путь не найден!')
@@ -543,20 +543,59 @@ class AStarPlanner(Node):
         return expanded_grid
     
     def plot_paths_before_after(self, original_path, smoothed_path):
-        plt.figure(figsize=(12, 8))
-        orig = np.array(original_path)
-        smooth = np.array(smoothed_path)
+        # Load the map image
+        try:
+            img = Image.open(f"{self.map_name}.pgm").convert("L")
+            map_img = np.array(img)
+            
+            # Create figure
+            plt.figure(figsize=(12, 8))
+            
+            # Display the map (inverted because 0=black=occupied in occupancy grids)
+            plt.imshow(map_img, cmap='gray', origin='lower', 
+                      extent=[0, self.width/self.upscale_factor, 
+                              0, self.height/self.upscale_factor])
+            
+            # Convert paths from upscaled coordinates back to original
+            orig = np.array(original_path) / self.upscale_factor
+            smooth = np.array(smoothed_path) / self.upscale_factor
+            
+            # Plot paths
+            plt.plot(orig[:, 0], orig[:, 1], 'r--', label='Original Path')
+            plt.plot(smooth[:, 0], smooth[:, 1], 'g-', linewidth=2, label='Smoothed Path')
+            
+            # Plot start and goal (converted back to original scale)
+            plt.plot(self.start_x/self.upscale_factor, 
+                     self.start_y/self.upscale_factor, 
+                     'go', markersize=10, label='Start')
+            plt.plot(self.goal_x/self.upscale_factor, 
+                     self.goal_y/self.upscale_factor, 
+                     'ro', markersize=10, label='Goal')
+            
+            plt.legend()
+            plt.title('Path Before and After Smoothing Overlaid on Map')
+            plt.xlabel('X (pixels)')
+            plt.ylabel('Y (pixels)')
+            plt.grid(True)
+            plt.show()
+            
+        except Exception as e:
+            self.get_logger().error(f'Failed to plot map: {e}')
+            # Fall back to simple plot if map loading fails
+            plt.figure(figsize=(12, 8))
+            orig = np.array(original_path)
+            smooth = np.array(smoothed_path)
 
-        plt.plot(orig[:, 0], orig[:, 1], 'r--', label='Оригинал')
-        plt.plot(smooth[:, 0], smooth[:, 1], 'g-', linewidth=2, label='Сглаженная')
-        plt.plot(self.start_x, self.start_y, 'go', markersize=10, label='Начало')
-        plt.plot(self.goal_x, self.goal_y, 'ro', markersize=10, label='Цель')
+            plt.plot(orig[:, 0], orig[:, 1], 'r--', label='Original')
+            plt.plot(smooth[:, 0], smooth[:, 1], 'g-', linewidth=2, label='Smoothed')
+            plt.plot(self.start_x, self.start_y, 'go', markersize=10, label='Start')
+            plt.plot(self.goal_x, self.goal_y, 'ro', markersize=10, label='Goal')
 
-        plt.legend()
-        plt.title('Путь до и после сглаживания (минимальный радиус = 1 м)')
-        plt.axis('equal')
-        plt.grid(True)
-        plt.show()
+            plt.legend()
+            plt.title('Path Before and After Smoothing (Min Radius = 1 m)')
+            plt.axis('equal')
+            plt.grid(True)
+            plt.show()
 
 
 def main(args=None):

@@ -8,7 +8,7 @@ import heapq
 import matplotlib.pyplot as plt
 import yaml
 import os
-
+from datetime import datetime
 class PathReplanner(Node):
     def __init__(self):
         super().__init__('path_replanner')
@@ -18,7 +18,8 @@ class PathReplanner(Node):
         self.step_forward = 10   # Отступ вперед от точки пересечения (пиксели)
         self.safety_margin = 5   # Безопасное расстояние от препятствий (пиксели)
         self.enable_visualization = True
-        
+        self.enable_visualization = True
+        self.save_visualizations = True  # Включить сохранение визуализаций
         # Текущие данные
         self.original_path = None
         self.obstacle_points = []
@@ -288,8 +289,17 @@ class PathReplanner(Node):
             plt.draw()
             plt.pause(0.01)
             
+            # Сохранение изображения
+            if self.save_visualizations:
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = os.path.join(self.output_dir, f"path_visualization_{timestamp}.png")
+                self.fig.savefig(filename, dpi=300, bbox_inches='tight')
+                self.get_logger().info(f"Визуализация сохранена как {filename}")
+            
         except Exception as e:
             self.get_logger().error(f"Ошибка визуализации: {str(e)}")
+
+    # [Rest of the class remains the same...]
 
     def save_path_to_file(self, path_msg, filename='replanned_path.txt'):
         """Сохраняет координаты точек из Path в текстовый файл"""
