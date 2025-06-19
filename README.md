@@ -17,149 +17,71 @@
 
     ROS 2 Humble
     Gazebo
-    Инструменты сборки Colcon
      
 
 Шаги установки 
 
-    Клонируйте репозиторий в папку src вашего ROS2-воркспейса:
+Клонируйте репозиторий в папку src вашего ROS2-воркспейса:
+     
+	cd ~/ваш_воркспейс
+	git clone https://github.com/SuperPressing/ProjectToRos2V2.git
+ 
+Выполните сборку проекта:
      
 
-bash
- 
- 
-1
-2
-cd ~/ваш_воркспейс/src
-git clone https://github.com/вашеимя/ваш_проект.git 
- 
- 
- 
-
-    Перейдите в корень воркспейса и установите зависимости:
-     
-
-bash
- 
- 
-1
-2
-3
-cd ..
-source /opt/ros/humble/setup.bash
-rosdep install --from-paths src --ignore-src -r -y
- 
- 
- 
-
-    Выполните сборку проекта:
-     
-
-bash
- 
- 
-1
-colcon build --symlink-install
- 
- 
- 
-
-    Активируйте собранные пакеты:
-     
-
-bash
- 
- 
-1
-source install/setup.bash
- 
- 
+	source install/setup.bash 
+	colcon build --symlink-install
  
 Запуск симуляции 
 
 Чтобы запустить симуляцию в Gazebo: 
-bash
- 
- 
-1
-ros2 launch my_robot launch_sim.launch.py
- 
- 
- 
 
+	ros2 launch my_robot launch_sim.launch.py
+ 
+ 
 Откроется окно Gazebo с загруженным миром и роботом. 
 Запуск системы навигации 
 
 В новом терминале активируйте workspace: 
-bash
- 
-cd ~/ваш_воркспейс
-source install/setup.bash
- 
- 
- 
 
+	cd ~/ваш_воркспейс
+	source install/setup.bash
+	colcon build --symlink-install
+ 
 Запустите основной модуль навигации: 
-bash
- 
- 
 
-ros2 run Potential_field A_start
- 
- 
- 
+	ros2 run Potential_field A_start
 
 Этот узел строит траекторию до цели с помощью A* и управляет движением робота с использованием потенциального поля. 
 Обнаружение препятствий 
 
-Для включения локального планировщика, который проверяет наличие препятствий на пути, откройте отдельный терминал и выполните: 
-bash
+Для включения локального планировщика, который проверяет наличие препятствий на пути, откройте отдельный терминал и выполните:
  
+	cd ~/ваш_воркспейс
+	source install/setup.bash
+	ros2 run Potential_field Find
  
-1
-ros2 run Potential_field Find
- 
- 
- 
-
 Этот узел позволяет системе обнаруживать препятствия и перестраивать маршрут при необходимости. 
 Изменение целевой точки 
 
 Чтобы изменить точку назначения, откройте файл: 
  
+	~/ваш_воркспейс/src/Potential_field/Potential_field/A_star.py
  
-1
-~/ваш_воркспейс/src/Potential_field/Potential_field/A_star.py
- 
- 
- 
-
 Измените значения переменных: 
-python
- 
- 
-1
-2
-goal_x = 50
-goal_y = 100
- 
- 
- 
 
-    Координаты указаны в системе координат карты. Учитывайте масштаб среды при их изменении. 
+	goal_x = 50
+	goal_y = 100
+ 
+Координаты указаны в системе координат карты. Учитывайте масштаб среды при их изменении. 
      
 
-Визуализация в RViz (по желанию) 
+Визуализация в RViz
 
 Для визуализации движения робота и траектории можно использовать RViz: 
-bash
- 
- 
-1
-rviz2
- 
- 
+
+	rviz2
  
 
-Добавьте отображение тем (/tf, /odom, /path и другие), чтобы видеть текущее состояние робота и его маршрут. 
+Добавьте отображение тем (/tf, /odom, /path ,/scan, /map, /map_update), чтобы видеть текущее состояние робота и его маршрут. 
 
