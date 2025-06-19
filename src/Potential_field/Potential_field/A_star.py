@@ -12,17 +12,9 @@ import math
 import cv2
 from nav_msgs.msg import Path
 from geometry_msgs.msg import PoseStamped
-# ——————— Функция построения дуги окружности ———————
+
 def build_circular_arc(p_start, p_end, center, R_pixels, num_points=20):
-    """
-    Строит дугу окружности между двумя точками вокруг заданного центра
-    :param p_start: начальная точка (x, y)
-    :param p_end: конечная точка (x, y)
-    :param center: центр окружности (x, y)
-    :param R_pixels: радиус окружности (в пикселях)
-    :param num_points: количество точек на дуге
-    :return: список точек [(x, y), ...]
-    """
+
     p_start = np.array(p_start)
     p_end = np.array(p_end)
     center = np.array(center)
@@ -30,7 +22,6 @@ def build_circular_arc(p_start, p_end, center, R_pixels, num_points=20):
     angle_start = math.atan2(p_start[1] - center[1], p_start[0] - center[0])
     angle_end = math.atan2(p_end[1] - center[1], p_end[0] - center[0])
 
-    # Определяем направление дуги
     delta_angle = angle_end - angle_start
     if abs(delta_angle) > math.pi:
         if delta_angle < 0:
@@ -55,7 +46,7 @@ class AStarPlanner(Node):
         super().__init__('a_star_planner_node')
         self.map_name = map_name
         self.get_logger().info("A* Planner запущен")
-        self.upscale_factor = upscale_factor  # Коэффициент увеличения разрешения
+        self.upscale_factor = upscale_factor  
         self.map_name = map_name
         self.start_x = int(start_x)
         self.start_y = int(start_y)
@@ -63,20 +54,18 @@ class AStarPlanner(Node):
         self.goal_y = int(goal_y)
         self.load_map()
         self.path_pub = self.create_publisher(Path, '/potential_path', 10)
-        # Добавляем публикатор для массива координат
+
         self.array_pub = self.create_publisher(Float32MultiArray, '/path_coordinates', 10)
-        # Подписчики на стартовую и целевую точки
         self.start_sub = self.create_subscription(Path, '/start_pose', self.start_callback, 10)
         
         self.get_logger().info(f'Загрузка карты из {self.map_name}')
         self.get_logger().info(f'Старт: ({self.start_x}, {self.start_y}), Цель: ({self.goal_x}, {self.goal_y})')
-        self.plan_path()# заменить на входные значения
+        self.plan_path()
 
  
 
     def start_callback(self, msg):
         self.get_logger().info('Получен старт')
-        # self.start_point = self.world_to_pixel(msg.pose.position.x, msg.pose.position.y)
         self.start_received = True
         self.plan_path()
 
@@ -94,27 +83,24 @@ class AStarPlanner(Node):
                 for x in range(self.width):
                     idx = x + y * self.width
                     if pixels[idx] == 0:
-                        grid[y][x] = 1  # стена
+                        grid[y][x] = 1 
                     elif pixels[idx] > 0:
-                        grid[y][x] = 0  # свободно
+                        grid[y][x] = 0  
                     else:
-                        grid[y][x] = 1  # неизвестно = стена
+                        grid[y][x] = 1  
 
-            # Расширяем препятствия на 0.2 метра
             self.grid = self.expand_obstacles(grid, distance_meters=0.2)
 
             self.get_logger().info(f"Исходный размер: {self.width}x{self.height}")
             grid = self.upscale_map(grid)
             self.get_logger().info(f"Новый размер: {self.width}x{self.height}, разрешение: {self.resolution} м/пиксель")
 
-            # Пересчитываем координаты с новым разрешением
             self.start_x = int(self.start_x * self.upscale_factor)
             self.start_y = int(self.start_y * self.upscale_factor)
             self.goal_x = int(self.goal_x * self.upscale_factor)
             self.goal_y = int(self.goal_y * self.upscale_factor)
             self.get_logger().info(f"Новые координаты: Старт({self.start_x}, {self.start_y}), Цель({self.goal_x}, {self.goal_y})")
 
-            # Расширяем препятствия
             self.grid = self.expand_obstacles(grid, distance_meters=0.2)
             self.get_logger().info(f'Карта загружена и расширена: {self.width}x{self.height}')
             
@@ -126,7 +112,6 @@ class AStarPlanner(Node):
         """Увеличивает разрешение карты с интерполяцией"""
         height, width = grid.shape
         
-        # Используем билинейную интерполяцию для плавного увеличения
         new_width = width * self.upscale_factor
         new_height = height * self.upscale_factor
         upscaled = cv2.resize(
@@ -135,14 +120,12 @@ class AStarPlanner(Node):
             interpolation=cv2.INTER_LINEAR
         )
         
-        # Обновляем параметры карты
         self.width = new_width
         self.height = new_height
         self.resolution /= self.upscale_factor
         
-        # Преобразуем обратно в бинарную карту
         binary_upscaled = np.zeros_like(upscaled, dtype=np.uint8)
-        binary_upscaled[upscaled > 0.5] = 1  # Пороговая обработка
+        binary_upscaled[upscaled > 0.5] = 1 
         
         return binary_upscaled
     def plan_path(self):
@@ -162,10 +145,8 @@ class AStarPlanner(Node):
         if path:
             self.get_logger().info('Путь найден!')
 
-            # Динамическое сглаживание с контролем отклонения
-            R_min_start = 0.2  # Начальный минимальный радиус (в метрах)
-            max_deviation_threshold = 0.5  # Максимальное отклонение (в метрах)
-            # smoothed_path = self.smooth_path_with_dynamic_radius(path, R_min_start, max_deviation_threshold)
+            R_min_start = 0.2 
+            max_deviation_threshold = 0.5  
             smoothed_path = path
             output_file = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/trac.txt'
             with open(output_file, 'w') as f:
@@ -173,18 +154,18 @@ class AStarPlanner(Node):
             print(smoothed_path)
             # Публикация и отображение
             msg = Path()
-            msg.header.stamp = self.get_clock().now().to_msg()  # Текущее время
-            msg.header.frame_id = "map"  # Система координат (например, "map" или "odom")
+            msg.header.stamp = self.get_clock().now().to_msg() 
+            msg.header.frame_id = "map" 
             for x, y in smoothed_path:
                 pose = PoseStamped()
                 pose.header.frame_id = "map"
-                # Преобразование пиксельных координат в мировые (метры)
+
                 pose.pose.position.x = self.origin[0]
                 pose.pose.position.y = self.origin[1]
-                pose.pose.orientation.w = 1.0  # Ориентация (по умолчанию)
+                pose.pose.orientation.w = 1.0
                 msg.poses.append(pose)
             self.publish_path(smoothed_path)
-            self.publish_path_array(smoothed_path)  # Публикация массива
+            self.publish_path_array(smoothed_path)
             self.plot_paths_before_after(path, smoothed_path)
 
         else:
@@ -195,11 +176,9 @@ class AStarPlanner(Node):
         if not (0 <= x < self.width and 0 <= y < self.height):
             return False
 
-        # Проверяем, что текущая точка свободна
         if self.grid[y][x] != 0:
             return False
 
-        # Дополнительно можно проверить небольшую окрестность (например, 3x3)
         check_radius = 1  # пикселей
         for dy in range(-check_radius, check_radius + 1):
             for dx in range(-check_radius, check_radius + 1):
@@ -257,7 +236,7 @@ class AStarPlanner(Node):
                     f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
                     heapq.heappush(open_set, (f_score[neighbor], neighbor))
 
-        return []  # Путь не найден
+        return []  
 
     def reconstruct_path(self, came_from, current):
         path = [current]
@@ -313,12 +292,7 @@ class AStarPlanner(Node):
         return sorted(nonlinear_indices)
 
     def simplify_nonlinear_points(self, nonlinear_indices, min_gap=5):
-        """
-        Упрощает список точек поворотов, объединяя близкие
-        :param nonlinear_indices: список индексов с резкими поворотами
-        :param min_gap: минимальное расстояние между группами
-        :return: упрощённый список
-        """
+ 
         if not nonlinear_indices:
             return []
 
@@ -336,13 +310,7 @@ class AStarPlanner(Node):
         return simplified
 
     def get_points_around_bend(self, path, bend_index, distance_meters=1.0):
-        """
-        Возвращает точки за 1 м до и после точки поворота
-        :param path: список координат
-        :param bend_index: индекс точки поворота
-        :param distance_meters: расстояние от точки поворота для анализа
-        :return: (точка_до, точка_после)
-        """
+
         if bend_index >= len(path) or bend_index < 0:
             return None, None
 
@@ -373,13 +341,6 @@ class AStarPlanner(Node):
         return path[i_before], path[i_after]
 
     def smooth_path_with_min_radius(self, path, simplified_indices, R_min_meters=1.0):
-        """
-        Заменяет участки вокруг острых поворотов на дуги окружности
-        :param path: оригинальный путь
-        :param simplified_indices: точки с резкими поворотами
-        :param R_min_meters: минимальный радиус (в метрах)
-        :return: обновлённая траектория
-        """
         smoothed_path = list(path)
         offset = 0
         R_min_pixels = R_min_meters / self.resolution
@@ -398,19 +359,18 @@ class AStarPlanner(Node):
             p_after = np.array(after_point)
             p_curr = np.array(smoothed_path[adjusted_idx])
 
-            # Центр окружности — середина между before и after
+            
             center = (p_before + p_after) / 2
 
-            # Если радиус слишком мал, корректируем центр
             current_radius = np.linalg.norm(p_curr - center)
             if current_radius < R_min_pixels:
                 direction = (p_curr - center) / (current_radius + 1e-8)
                 center = p_curr - direction * R_min_pixels
 
-            # Строим дугу окружности
+           
             arc_points = build_circular_arc(p_before, p_after, center, R_min_pixels)
 
-            # Удаляем старый участок и вставляем дугу
+            
             try:
                 i_start = smoothed_path.index(before_point)
                 i_end = smoothed_path.index(after_point)
@@ -425,9 +385,7 @@ class AStarPlanner(Node):
         return smoothed_path
 
     def calculate_max_deviation(self, original_path, smoothed_path):
-        """
-        Вычисляет максимальное отклонение между двумя траекториями (в метрах)
-        """
+
         max_deviation = 0.0
         smoothed_array = np.array(smoothed_path)
 
@@ -441,21 +399,13 @@ class AStarPlanner(Node):
         return max_deviation * self.resolution
 
     def smooth_path_with_dynamic_radius(self, path, initial_R_min=1.0, max_deviation_threshold=0.5, max_iterations=100):
-        """
-        Сглаживает путь, динамически уменьшая радиус, если отклонение слишком велико
-        :param path: оригинальный путь
-        :param initial_R_min: начальный радиус (в метрах)
-        :param max_deviation_threshold: порог отклонения (в метрах)
-        :param max_iterations: лимит итераций
-        :return: сглаженная траектория
-        """
+       
         current_path = list(path)
         R_min = initial_R_min
         iteration = 0
 
-        # Исправлено условие цикла
+       
         while iteration < max_iterations:
-            # Найти точки с резкими поворотами
             nonlinear_indices = self.find_strong_nonlinear_points(current_path, threshold_angle=20, step=3)
             simplified_indices = self.simplify_nonlinear_points(nonlinear_indices, min_gap=5)
 
@@ -465,19 +415,15 @@ class AStarPlanner(Node):
 
             self.get_logger().info(f'Итерация {iteration + 1}: найдено {len(simplified_indices)} точек перегиба')
 
-            # Применить сглаживание с текущим радиусом
             new_path = self.smooth_path_with_min_radius(current_path, simplified_indices, R_min)
 
-            # Проверить отклонение
             max_deviation = self.calculate_max_deviation(path, new_path)
             self.get_logger().info(f'Максимальное отклонение: {max_deviation:.2f} м')
 
-            # Если отклонение допустимо — выйти
             if max_deviation <= max_deviation_threshold:
                 self.get_logger().info('Отклонение в пределах порога. Сглаживание завершено.')
                 return new_path
 
-            # Иначе уменьшить радиус и попробовать снова
             R_min = max(R_min - 0.1, 0.2)
             current_path = new_path
             iteration += 1
@@ -519,52 +465,43 @@ class AStarPlanner(Node):
         self.get_logger().info(f'Опубликован массив координат пути, всего {len(data)} чисел')
 
     def expand_obstacles(self, grid, distance_meters=0.2):
-        """
-        Расширяет препятствия на заданное расстояние (в метрах)
-        :param grid: исходная карта (numpy 2D array)
-        :param distance_meters: расстояние от препятствий (в метрах)
-        :return: новая карта с расширенными препятствиями
-        """
+
         height, width = grid.shape
         expanded_grid = grid.copy()
         distance_pixels = int(distance_meters / self.resolution)
 
-        # Создаем маску расстояния
+       
         for y in range(height):
             for x in range(width):
-                if grid[y][x] == 1:  # если это стена
-                    # Заполняем квадрат вокруг точки
+                if grid[y][x] == 1:  
                     for dy in range(-distance_pixels, distance_pixels + 1):
                         for dx in range(-distance_pixels, distance_pixels + 1):
                             nx = x + dx
                             ny = y + dy
                             if 0 <= nx < width and 0 <= ny < height:
-                                expanded_grid[ny][nx] = 1  # тоже считаем за препятствие
+                                expanded_grid[ny][nx] = 1 
         return expanded_grid
     
     def plot_paths_before_after(self, original_path, smoothed_path):
-        # Load the map image
         try:
             img = Image.open(f"{self.map_name}.pgm").convert("L")
             map_img = np.array(img)
             
-            # Create figure
             plt.figure(figsize=(12, 8))
             
-            # Display the map (inverted because 0=black=occupied in occupancy grids)
+            
             plt.imshow(map_img, cmap='gray', origin='lower', 
                       extent=[0, self.width/self.upscale_factor, 
                               0, self.height/self.upscale_factor])
             
-            # Convert paths from upscaled coordinates back to original
             orig = np.array(original_path) / self.upscale_factor
             smooth = np.array(smoothed_path) / self.upscale_factor
             
-            # Plot paths
+            
             plt.plot(orig[:, 0], orig[:, 1], 'r--', label='Original Path')
             plt.plot(smooth[:, 0], smooth[:, 1], 'g-', linewidth=2, label='Smoothed Path')
             
-            # Plot start and goal (converted back to original scale)
+            
             plt.plot(self.start_x/self.upscale_factor, 
                      self.start_y/self.upscale_factor, 
                      'go', markersize=10, label='Start')
@@ -581,7 +518,7 @@ class AStarPlanner(Node):
             
         except Exception as e:
             self.get_logger().error(f'Failed to plot map: {e}')
-            # Fall back to simple plot if map loading fails
+            
             plt.figure(figsize=(12, 8))
             orig = np.array(original_path)
             smooth = np.array(smoothed_path)
@@ -606,7 +543,7 @@ def main(args=None):
     start_y = 150
     goal_x = 50
     goal_y = 100
-    upscale_factor = 1  # Увеличение разрешения в 2 раза
+    upscale_factor = 1 
 
     node = AStarPlanner(map_name, start_x, start_y, goal_x, goal_y, upscale_factor)
     
