@@ -33,9 +33,7 @@ class TrajectoryFollower(Node):
         file_path = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/trajectory_output.txt'
         self.v_control = 0
         self.w_control = 0
-        # with open(file_path, 'r') as file:
-        #     loaded_trajectory = ast.literal_eval(file.read())
-        # Целевая траектория (можно заменить на получение через Action / Goal)
+        
         self.time_data = []
         self.x_positions = []
         self.y_positions = []
