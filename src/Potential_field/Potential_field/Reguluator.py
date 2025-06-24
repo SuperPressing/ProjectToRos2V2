@@ -13,7 +13,7 @@ class TrajectoryFollower(Node):
     def __init__(self):
         super().__init__('trajectory_follower')
 
-        # Подписчики
+ 
         self.subscription = self.create_subscription(
             Odometry,
             '/odom',
@@ -27,7 +27,7 @@ class TrajectoryFollower(Node):
         self.markov = False
         self.filter_v = FirstOrderFilter(alpha=0.1)
         self.filter_w = FirstOrderFilter(alpha=0.1)
-        # Публикатор
+
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         self.create_subscription(OccupancyGrid, '/map_modified', self.map_callback, 10)
         file_path = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/trajectory_output.txt'
@@ -42,11 +42,11 @@ class TrajectoryFollower(Node):
         self.w = []
         self.current_waypoint_index = 0
 
-        # Таймер для управления
+
         self.timer = self.create_timer(0.1, self.control_loop)  # 10 Гц
         self.map_info = None
         self.map_data = None
-        # Текущее состояние
+
         self.current_x = 0.0
         self.current_y = 0.0
         self.current_theta = 0.0
@@ -54,53 +54,44 @@ class TrajectoryFollower(Node):
         self.current_w = 0.0
         self.v_control = 0.0
         self.w_control = 0.0
-        # Параметры контроллера
-        self.K1 = 1.5  # продольное усиление
-        self.K2 = 1.2  # угловое усиление
+
+        self.K1 = 1.5 
+        self.K2 = 1.2
 
     def path_callback(self, msg):
         """Обработчик сообщений с траекторией"""
         self.get_logger().info(f"Получена траектория с {len(msg.points)} точками")
         self.current_waypoint_index = 0
-        # Очищаем предыдущие данные
+
         self.time_data.clear()
         self.x_positions.clear()
         self.y_positions.clear()
         self.orientations.clear()
         
-        # Проверяем, что в сообщении есть нужные данные
+
         if len(msg.points) < 3:
             self.get_logger().error("Недостаточно joint_names в сообщении!")
             return
         
-        # Извлекаем данные из каждой точки траектории
+
         for point in msg.points:
-            # Время (переводим в секунды)
+
             time_sec = point.time_from_start.sec + point.time_from_start.nanosec * 1e-9
             self.time_data.append(time_sec)
             self.v.append(point.velocities[0])
             self.w.append(point.velocities[1])
-            # Позиции (предполагаем, что joint_names = ['x', 'y', 'theta'])
+
             self.x_positions.append(point.positions[0])
             self.y_positions.append(point.positions[1])
-            self.orientations.append(point.positions[2])  # Ориентация
+            self.orientations.append(point.positions[2])  
             
-        # self.get_logger().info(len(self.x_positions))            
-        # self.process_trajectory_data()
+
     
     def process_trajectory_data(self):
         """Обработка полученных данных"""
         self.get_logger().info("Обработка данных траектории...")
         
-        # Пример вывода данных
-        # for i in range(len(self.time_data)):
-            # self.get_logger().info(
-            #     f"Точка {i}: "
-            #     f"Время = {self.time_data[i]:.2f}s, "
-            #     f"X = {self.x_positions[i]:.2f}m, "
-            #     f"Y = {self.y_positions[i]:.2f}m, "
-            #     f"Ориентация = {self.orientations[i]:.2f}rad"
-            # )
+
     def map_callback(self, msg):
         """Получаем карту"""
         self.map_data = list(msg.data)
@@ -109,14 +100,13 @@ class TrajectoryFollower(Node):
     def odom_callback(self, msg):
         if not self.map_info:
            return
-        # Извлекаем положение и ориентацию из одометрии
+
         pose = msg.pose.pose
         twist = msg.twist.twist
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
         
-        # self.current_x = int((x - self.map_info.origin.position.x) / self.map_info.resolution)
-        # self.current_y = int((y - self.map_info.origin.position.y) / self.map_info.resolution)
+
         self.current_x = x*20.9+250
         self.current_y = y*20.9+150
         yaw = self.euler_from_quaternion(msg.pose.pose.orientation)
@@ -145,20 +135,11 @@ class TrajectoryFollower(Node):
             
             return
 
-        # target = self.trajectory[self.current_waypoint_index]
-        
-        # Ошибки
+
         e1 = self.x_positions [self.current_waypoint_index]- self.current_x
         e2 = self.y_positions[self.current_waypoint_index] - self.current_y
         e3 = self.angle_diff(self.orientations[self.current_waypoint_index], self.current_theta)
-        # print(f'Текущий x {self.current_x} Рассчитанный x {target["x"]}')
-        # print(f'Текущий y {self.current_y} Рассчитанный y {target["y"]}')
-        # print(f'Текущий theta {self.current_theta} Рассчитанный theta {target["theta"]} ошибка е3 {e3}')
-        # Проекция ошибки на систему координат робота
-        # de1 = v_control* math.cos(self.current_theta) + target['v']* math.cos(target['theta'])
-        # de2 = v_control* math.sin(self.current_theta) + target['v']* math.sin(target['theta'])
-        # de3 = w_control-target['theta']
-        # Управление
+
         k1 = 5
         k2 = 1
         s = e1*math.cos(self.orientations[self.current_waypoint_index]+e3)+e2*math.sin(self.orientations[self.current_waypoint_index]+e3)
@@ -178,7 +159,7 @@ class TrajectoryFollower(Node):
         v_control = max(-2.0, min(v_control, 2.0))
         w_control = max(-0.1, min(w_control, 0.1))
 
-        # Пропускаем через фильтр для плавности
+
         v_filtered = self.filter_v.update(v_control)
         w_filtered = self.filter_w.update(w_control)
         
@@ -197,11 +178,11 @@ class TrajectoryFollower(Node):
         y = quat.y
         z = quat.z
         w = quat.w
-        # Расчёт yaw (вращение вокруг оси Z)
+
         siny_cosp = 2 * (w * z + x * y)
         cosy_cosp = 1 - 2 * (y * y + z * z)
         yaw = math.atan2(siny_cosp, cosy_cosp)
-        return yaw  # возвращаем только угол поворота (yaw)
+        return yaw  
 
 
 def main(args=None):
