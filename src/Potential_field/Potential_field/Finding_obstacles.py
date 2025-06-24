@@ -10,23 +10,21 @@ class ObstacleChecker(Node):
     def __init__(self):
         super().__init__('obstacle_checker')
         
-        # Загрузка карты
         self.map_image = cv2.imread('/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/update_map.pgm', cv2.IMREAD_GRAYSCALE)
         if self.map_image is None:
             self.get_logger().error("Не удалось загрузить карту!")
             exit(1)
-        
-        # Порог для определения препятствий (черный цвет)
+
         self.obstacle_threshold = 5
         
-        # Подписка на путь
+
         self.path_sub = self.create_subscription(
             Path,
             '/potential_path',
             self.path_callback,
             10)
         
-        # Публикация точек с препятствиями
+
         self.obstacle_pub = self.create_publisher(Path, '/obstacle_points', 10)
         
         self.get_logger().info("Obstacle checker node initialized")
@@ -34,7 +32,7 @@ class ObstacleChecker(Node):
     def path_callback(self, path_msg):
         obstacle_points = Path()
         obstacle_points.header = path_msg.header
-        obstacle_list = []  # Для хранения точек препятствий для вывода в консоль
+        obstacle_list = []  
         
         for pose in path_msg.poses:
             x = int(pose.pose.position.x)
@@ -48,11 +46,11 @@ class ObstacleChecker(Node):
         if len(obstacle_points.poses) > 0:
             self.get_logger().info(f"Найдено {len(obstacle_points.poses)} точек с препятствиями")
             
-            # Вывод координат препятствий в консоль
+
             print("\nОбнаружены препятствия в точках (x, y):")
             for i, (x, y) in enumerate(obstacle_list, 1):
                 print(f"{i}. ({x}, {y})")
-            print()  # Пустая строка для разделения
+            print()  
             self.obstacle_pub.publish(obstacle_points)
 
 def main(args=None):
