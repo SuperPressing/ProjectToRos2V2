@@ -18,19 +18,19 @@ class MDPReplanner(Node):
         super().__init__('mdp_replanner_node')
         self.get_logger().info("MDP Replanner initialized")
 
-        # Parameters
-        self.resolution = 0.05  # meters per pixel
-        self.replanning_buffer = 5  # grid cells around path to consider for states
-        self.lookahead_distance = 1.0  # meters to check for obstacles ahead
+
+        self.resolution = 0.05
+        self.replanning_buffer = 5  
+        self.lookahead_distance = 1.0
         
-        # File paths
+
         self.output_dir = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/path_data'
         os.makedirs(self.output_dir, exist_ok=True)
         self.original_path_file = os.path.join(self.output_dir, 'original_path.csv')
         self.replanned_path_file = os.path.join(self.output_dir, 'replanned_path.csv')
         self.map_image_file = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field/update_map.pgm'
         
-        # State variables
+
         self.original_path = []
         self.current_position = (0, 0)
         self.current_orientation = 0.0
@@ -43,13 +43,13 @@ class MDPReplanner(Node):
         self.current_x = 0
         self.current_y = 0
 
-        # Publishers and Subscribers
+
         self.path_pub = self.create_publisher(Path, '/replanned_path', 10)
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.create_subscription(Path, '/potential_path', self.path_callback, 10)
         
-        # Timer for periodic path checking
-        self.create_timer(1.0, self.check_path)  # Check path every 1 second
+
+        self.create_timer(1.0, self.check_path) 
         
         # Load map
         self.load_map()
