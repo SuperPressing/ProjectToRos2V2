@@ -13,19 +13,18 @@ from builtin_interfaces.msg import Duration
 class TrajectoryPlanner(Node):
     def __init__(self):
         super().__init__('trajectory_planner')
-        
-        # Robot parameters
-        self.r = 0.05       # Wheel radius [m]
-        self.L = 0.35       # Wheelbase [m]
-        self.m = 5.0        # Mass [kg]
-        self.mu = 0.02      # Friction coefficient
-        self.I = 64.0       # Moment of inertia [kg·m²]
-        self.g = 9.81       # Gravity [m/s²]
-        self.v_max = 5.0    # Max speed [m/s]
-        self.a = 0.5        # Acceleration [m/s²]
-        self.dt = 0.1       # Time step [s]
 
-        # ROS2 communication
+        self.r = 0.05      
+        self.L = 0.35      
+        self.m = 5.0     
+        self.mu = 0.02      
+        self.I = 64.0     
+        self.g = 9.81       
+        self.v_max = 5.0   
+        self.a = 0.5        
+        self.dt = 0.1    
+
+
         self.subscription = self.create_subscription(
             Path,
             '/potential_path',
@@ -36,13 +35,13 @@ class TrajectoryPlanner(Node):
             '/Trac',
             10)
         
-        # Create directory for plots
+
         self.plot_dir = '/home/neo/Documents/ros2_ws/src/Potential_field/Potential_field'
         os.makedirs(self.plot_dir, exist_ok=True)
         self.get_logger().info(f"Saving plots to: {self.plot_dir}")
 
     def path_callback(self, msg):
-        # Convert Path to numpy array
+
         path = []
         for pose in msg.poses:
             path.append([pose.pose.position.x, pose.pose.position.y])
@@ -52,11 +51,11 @@ class TrajectoryPlanner(Node):
             self.get_logger().warn("Received path with less than 2 points")
             return
 
-        # Calculate path length
+
         distances = np.sqrt(np.sum(np.diff(path, axis=0)**2, axis=1))
         total_length = np.sum(distances)
         
-        # Calculate time parameters
+
         t_accel = self.v_max / self.a
         s_accel = 0.5 * self.a * t_accel**2
 
@@ -69,10 +68,10 @@ class TrajectoryPlanner(Node):
             t_constant = s_constant / self.v_max
             t_total = 2 * t_accel + t_constant
 
-        # Generate time array
+
         t_eval = np.arange(0, t_total, self.dt)
         
-        # Generate velocity profile
+
         v_profile = []
         for t in t_eval:
             if t <= t_accel:
@@ -83,26 +82,26 @@ class TrajectoryPlanner(Node):
                 v = self.a * (t_total - t)
             v_profile.append(v)
         
-        # Calculate acceleration profile
+
         a_profile = np.gradient(v_profile, self.dt)
         
-        # Interpolate path
+
         cumulative_distances = np.insert(np.cumsum(distances), 0, 0)
         x_path = interp1d(cumulative_distances, path[:, 0], kind='linear', fill_value="extrapolate")
         y_path = interp1d(cumulative_distances, path[:, 1], kind='linear', fill_value="extrapolate")
         
-        # Calculate trajectory
+
         s_profile = np.cumsum(v_profile) * self.dt
         trajectory_x = x_path(s_profile)
         trajectory_y = y_path(s_profile)
         
-        # Calculate orientation and angular velocity
+
         dx = np.gradient(trajectory_x, self.dt)
         dy = np.gradient(trajectory_y, self.dt)
         theta = np.arctan2(dy, dx)
         omega_profile = np.gradient(theta, self.dt)
         
-        # Wheel kinematics
+
         def inverse_kinematics(v, omega):
             omega_L = (v - (self.L / 2) * omega) / self.r
             omega_R = (v + (self.L / 2) * omega) / self.r
@@ -114,11 +113,11 @@ class TrajectoryPlanner(Node):
             omega_L_profile.append(wl)
             omega_R_profile.append(wr)
         
-        # Dynamics
+
         F_traction = self.m * a_profile + self.mu * self.m * self.g
         M_rotation = self.I * np.gradient(omega_profile, self.dt) + self.mu * self.m * self.g * self.L / 2
 
-        # Create trajectory message
+
         traj_msg = JointTrajectory()
         traj_msg.header.stamp = self.get_clock().now().to_msg()
         current_time = self.get_clock().now()
@@ -133,22 +132,21 @@ class TrajectoryPlanner(Node):
                 float(omega_profile[i]),
             ]
             point.positions = [
-                float(trajectory_x[i]),  # координата x
-                float(trajectory_y[i]),  # координата y
-                float(theta[i])       # угол ориентации (опционально)
+                float(trajectory_x[i]),  
+                float(trajectory_y[i]), 
+                float(theta[i])      
             ]
-            # Calculate time duration
-            sec = int(t_eval[i]+current_time)  # 2
-            nanosec = int((t_eval[i] - sec+current_time) * 1e9)  # 0.75 * 1e9 = 750000000
-            # nanosec = int((t_eval[i] - sec) * 1e9)
+    
+            sec = int(t_eval[i]+current_time)  
+            nanosec = int((t_eval[i] - sec+current_time) * 1e9)  
+            
             point.time_from_start = builtin_interfaces.msg.Duration(sec=sec,nanosec = nanosec )
             traj_msg.points.append(point)
         
-        # Publish trajectory
         self.trajectory_pub.publish(traj_msg)
         self.get_logger().info(f"Published trajectory with {len(traj_msg.points)} points")
         
-        # Generate and save plots
+      
         self.generate_plots(
             path, 
             trajectory_x, 
@@ -164,11 +162,11 @@ class TrajectoryPlanner(Node):
 
     def generate_plots(self, path, trajectory_x, trajectory_y, theta, t_eval, 
                        v_profile, a_profile, omega_L_profile, omega_R_profile, F_traction):
-        # Create figure with subplots
+    
         fig, axs = plt.subplots(3, 2, figsize=(14, 12))
         fig.suptitle('Trajectory Analysis', fontsize=16)
         
-        # 1. Trajectory plot
+      
         axs[0, 0].plot(path[:, 0], path[:, 1], 'ro-', label='Input Path')
         axs[0, 0].plot(trajectory_x, trajectory_y, 'b-', label='Actual Trajectory')
         axs[0, 0].set_title("Robot Trajectory")
@@ -178,7 +176,7 @@ class TrajectoryPlanner(Node):
         axs[0, 0].legend()
         axs[0, 0].axis('equal')
         
-        # Add orientation arrows
+     
         step = max(1, len(trajectory_x) // 10)
         arrow_length = 0.3
         for i in range(0, len(trajectory_x), step):
@@ -190,7 +188,7 @@ class TrajectoryPlanner(Node):
             axs[0, 0].arrow(x, y, dx_arrow, dy_arrow,
                             head_width=0.05, length_includes_head=True, color='blue')
 
-        # 2. Velocity profile
+       
         axs[0, 1].plot(t_eval, v_profile, 'g-', label='Linear velocity')
         axs[0, 1].set_title("Linear Velocity")
         axs[0, 1].set_xlabel("Time [s]")
@@ -198,7 +196,7 @@ class TrajectoryPlanner(Node):
         axs[0, 1].grid(True)
         axs[0, 1].legend()
 
-        # 3. Acceleration profile
+      
         axs[1, 0].plot(t_eval, a_profile, 'm-', label='Linear acceleration')
         axs[1, 0].set_title("Linear Acceleration")
         axs[1, 0].set_xlabel("Time [s]")
@@ -206,7 +204,7 @@ class TrajectoryPlanner(Node):
         axs[1, 0].grid(True)
         axs[1, 0].legend()
 
-        # 4. Orientation
+      
         axs[1, 1].plot(t_eval, np.degrees(theta), 'c-', label='Robot heading')
         axs[1, 1].set_title("Robot Orientation")
         axs[1, 1].set_xlabel("Time [s]")
@@ -214,7 +212,7 @@ class TrajectoryPlanner(Node):
         axs[1, 1].grid(True)
         axs[1, 1].legend()
 
-        # 5. Wheel velocities
+        
         axs[2, 0].plot(t_eval, omega_L_profile, 'b', label='Left wheel')
         axs[2, 0].plot(t_eval, omega_R_profile, 'r', label='Right wheel')
         axs[2, 0].set_title("Wheel Angular Velocities")
@@ -223,7 +221,7 @@ class TrajectoryPlanner(Node):
         axs[2, 0].grid(True)
         axs[2, 0].legend()
 
-        # 6. Traction force
+       
         axs[2, 1].plot(t_eval, F_traction, 'purple', label='Traction force')
         axs[2, 1].set_title("Traction Force")
         axs[2, 1].set_xlabel("Time [s]")
@@ -231,12 +229,12 @@ class TrajectoryPlanner(Node):
         axs[2, 1].grid(True)
         axs[2, 1].legend()
 
-        # Save figure
+      
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         plot_path = os.path.join(self.plot_dir, f'trajectory_analysis_{timestamp}.png')
         plt.tight_layout()
         plt.savefig(plot_path)
-        plt.close(fig)  # Close figure to free memory
+        plt.close(fig) 
         
         self.get_logger().info(f"Saved trajectory plots to: {plot_path}")
 
